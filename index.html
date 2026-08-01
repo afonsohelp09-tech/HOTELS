@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="pt" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <!-- ════════════════════════════════════════════════════════════
+       API — coller l’URL /exec du backend FOURNISSEUR ci-dessous
+       ════════════════════════════════════════════════════════════ -->
+  <script>
+    var AGENCIAS_API_URL = 'https://COLLER_URL_APPS_SCRIPT_FOURNISSEUR_ICI/exec';
+  </script>
+  <script>
+(function(){try{var t=localStorage.getItem('nhb_theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t);var l=localStorage.getItem('nhb_lang');if(l)document.documentElement.lang=l==='pt'?'pt':l;}catch(e){}})();
+  </script>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Nhalabene — Portail hôtel</title>
+  <link rel="icon" type="image/png" href="./assets/favicon.png" />
+  <link rel="apple-touch-icon" href="./assets/icon_carre_192.png" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <meta name="theme-color" content="#c9a84c" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Fraunces:opsz,wght@9..144,600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./shared/nhb-theme.css" />
+  <style>
+    .prix-box {
+      background: rgba(0,0,0,.22);
+      border: 1px solid var(--nhb-line);
+      border-radius: 10px;
+      padding: 0.85rem 1rem;
+      margin: 0.5rem 0 1rem;
+    }
+    .prix-box strong { color: var(--nhb-gold); font-size: 1.15rem; }
+    .actions-inline { display: flex; gap: 0.35rem; flex-wrap: wrap; }
+    .actions-inline .nhb-btn { width: auto; padding: 0.4rem 0.65rem; font-size: 0.78rem; }
+  </style>
+</head>
+<body class="nhb-on-login">
+  <div id="login-screen" class="nhb-login-screen">
+    <div class="nhb-login-top"><div id="nhbLoginChrome"></div></div>
+    <div class="nhb-login-box">
+      <div class="nhb-login-brand">
+        <div class="nhb-login-emblem"><img src="./assets/icon_carre_512.png" alt="" /></div>
+        <p class="nhb-login-name" id="loginBrandName">Nhalabene</p>
+        <p class="nhb-login-sub" data-i18n="login_sub_hotel">Lisboa · Portal hotel</p>
+      </div>
+      <div class="nhb-login-divider"></div>
+      <div id="step-login">
+        <h2 class="nhb-login-title" data-i18n="hotel_portal">Portal hotel</h2>
+        <p class="nhb-login-hint" data-i18n="hotel_login_hint">
+          Crie reservas para os seus clientes. A agência confirma depois. Login = ID do hotel + palavra-passe.
+        </p>
+        <div class="nhb-field">
+          <label for="login" data-i18n="login_id">Identificador (ID)</label>
+          <input class="nhb-input" id="login" placeholder="HTL…" autocomplete="username" />
+        </div>
+        <div class="nhb-field">
+          <label for="pass" data-i18n="password">Palavra-passe</label>
+          <input class="nhb-input" id="pass" type="password" autocomplete="current-password" />
+        </div>
+        <button type="button" class="nhb-btn-primary" id="btnLogin"><span class="sp"></span><span class="btn-t" data-i18n="login">Entrar</span></button>
+        <div class="nhb-msg" id="loginMsg"></div>
+        <button type="button" class="nhb-toggle-link" id="btnShowReset" data-i18n="forgot_link">Esqueci a palavra-passe</button>
+      </div>
+      <div id="step-reset" class="nhb-hidden">
+        <div class="nhb-step-dots"><span class="on" data-step="1"></span><span data-step="2"></span></div>
+        <div id="reset-part1">
+          <h2 class="nhb-login-title" data-i18n="forgot_title">Palavra-passe esquecida</h2>
+          <p class="nhb-login-hint" data-i18n="forgot_hint">Um código é enviado para o email da conta.</p>
+          <div class="nhb-field">
+            <label for="reset-login" data-i18n="forgot_login_email">Login ou email da conta</label>
+            <input class="nhb-input" id="reset-login" autocomplete="username" />
+          </div>
+          <button type="button" class="nhb-btn-primary" id="btnAskReset"><span class="sp"></span><span class="btn-t" data-i18n="send_code">Receber código por email</span></button>
+          <div class="nhb-msg" id="resetMsgAsk"></div>
+          <button type="button" class="nhb-toggle-link" id="btnGoReset2" data-i18n="code_received">Código recebido</button>
+        </div>
+        <div id="reset-part2" class="nhb-hidden">
+          <div class="nhb-field">
+            <label for="reset-userid" data-i18n="login_id">Identificador (ID)</label>
+            <input class="nhb-input" id="reset-userid" autocomplete="username" />
+          </div>
+          <div class="nhb-field">
+            <label for="reset-code" data-i18n="code_received">Código recebido</label>
+            <input class="nhb-input" id="reset-code" autocomplete="one-time-code" />
+          </div>
+          <div class="nhb-field">
+            <label for="reset-pass" data-i18n="new_password">Nova palavra-passe</label>
+            <input class="nhb-input" id="reset-pass" type="password" autocomplete="new-password" />
+          </div>
+          <button type="button" class="nhb-btn-primary" id="btnConfirmReset"><span class="sp"></span><span class="btn-t" data-i18n="validate_password">Validar nova palavra-passe</span></button>
+          <div class="nhb-msg" id="resetMsg"></div>
+        </div>
+        <button type="button" class="nhb-toggle-link" id="btnBackLogin" data-i18n="back_login">Voltar ao início de sessão</button>
+      </div>
+      <div class="nhb-login-footer"><a href="../hub/index.html" data-i18n="hub">Hub</a></div>
+    </div>
+  </div>
+
+  <header class="nhb-header nhb-app-only">
+    <div class="nhb-brand">
+      <div class="nhb-brand-logo" id="brandLogo"></div>
+      <h1 id="brandTitle">Nhalabene</h1>
+    </div>
+    <div id="nhbChrome"></div>
+    <div class="nhb-header-actions">
+      <span id="who" class="nhb-meta" style="display:inline;margin:0"></span>
+      <button type="button" class="nhb-link nhb-hidden" id="btnLogout" data-i18n="logout">Terminar sessão</button>
+      <a class="nhb-link" href="../hub/index.html" data-i18n="hub">Hub</a>
+    </div>
+  </header>
+
+  <main class="nhb-main nhb-app-only">
+    <section id="view-app" class="nhb-hidden">
+      <div class="nhb-tabs" id="mainTabs">
+        <button type="button" class="active" data-tab="resas" data-i18n="tab_mine">As minhas reservas</button>
+        <button type="button" data-tab="nouvelle" data-i18n="tab_new">Nova reserva</button>
+        <button type="button" data-tab="mdp" data-i18n="tab_password">Palavra-passe</button>
+      </div>
+
+      <div id="tab-resas" class="nhb-card">
+        <h2 data-i18n="tab_mine">As minhas reservas</h2>
+        <div class="nhb-pipeline" id="resaPipeline">
+          <button type="button" class="nhb-pipe active" data-pipe="all"><span data-i18n="all">Todos</span><b id="pipeAll">0</b></button>
+          <button type="button" class="nhb-pipe pendente" data-pipe="pendente"><span data-i18n="pendente">Pendente</span><b id="pipePendente">0</b></button>
+          <button type="button" class="nhb-pipe" data-pipe="confirmado"><span data-i18n="confirmado">Confirmado</span><b id="pipeConfirmado">0</b></button>
+          <button type="button" class="nhb-pipe" data-pipe="upcoming"><span data-i18n="upcoming">Próximas</span><b id="pipeUpcoming">0</b></button>
+        </div>
+        <div class="nhb-chip-row" id="resaDateChips">
+          <button type="button" class="nhb-pipe active" data-quick="all" data-i18n="quick_all">Todas</button>
+          <button type="button" class="nhb-pipe" data-quick="today" data-i18n="quick_today">Hoje</button>
+          <button type="button" class="nhb-pipe" data-quick="7d" data-i18n="quick_7d">7 dias</button>
+        </div>
+        <div style="display:flex;justify-content:flex-end;margin-bottom:0.75rem">
+          <button type="button" class="nhb-btn ghost" id="btnRefreshResas" data-i18n="refresh">Atualizar</button>
+        </div>
+        <div id="resasMsg" class="nhb-msg"></div>
+        <div class="nhb-table-wrap nhb-desk-only">
+          <table class="nhb-table">
+            <thead>
+              <tr>
+                <th data-i18n="th_id">ID</th>
+                <th data-i18n="th_client">Cliente</th>
+                <th data-i18n="th_trip">Trajeto</th>
+                <th data-i18n="th_date">Data</th>
+                <th data-i18n="status">Estado</th>
+                <th data-i18n="actions">Ações</th>
+              </tr>
+            </thead>
+            <tbody id="resasBody"></tbody>
+          </table>
+        </div>
+        <div id="resasCards" class="nhb-resa-list nhb-mobile-only"></div>
+      </div>
+
+      <div id="tab-nouvelle" class="nhb-card nhb-hidden">
+        <h2 data-i18n="tab_new">Nova reserva</h2>
+        <p class="nhb-meta">
+          <span data-i18n="initial_pendente">Estado inicial:</span>
+          <span class="nhb-badge pendente" data-i18n="pendente">Pendente</span>
+        </p>
+        <div class="nhb-row2">
+          <div>
+            <label class="nhb-label" data-i18n="client_name">Apelido do cliente *</label>
+            <input class="nhb-input" id="r-nom" />
+          </div>
+          <div>
+            <label class="nhb-label" data-i18n="client_first">Nome</label>
+            <input class="nhb-input" id="r-prenom" />
+          </div>
+        </div>
+        <div class="nhb-row2">
+          <div>
+            <label class="nhb-label" data-i18n="phone">Telefone</label>
+            <input class="nhb-input" id="r-tel" />
+          </div>
+          <div>
+            <label class="nhb-label" data-i18n="email">Email</label>
+            <input class="nhb-input" id="r-email" type="email" />
+          </div>
+        </div>
+        <div class="nhb-row2">
+          <div>
+            <label class="nhb-label" data-i18n="origin">Origem *</label>
+            <input class="nhb-input" id="r-origine" list="dl-origines" placeholder="Aeroporto Lisboa" autocomplete="off" />
+            <datalist id="dl-origines"></datalist>
+          </div>
+          <div>
+            <label class="nhb-label" data-i18n="destination">Destino *</label>
+            <input class="nhb-input" id="r-destination" list="dl-destinations" placeholder="Hotel Demo Lisboa" autocomplete="off" />
+            <datalist id="dl-destinations"></datalist>
+          </div>
+        </div>
+        <p class="nhb-meta" data-i18n="points_from_prices">Pontos calculados a partir dos preços</p>
+        <div class="nhb-row2">
+          <div>
+            <label class="nhb-label" data-i18n="date">Data</label>
+            <input class="nhb-input" id="r-date" type="date" />
+          </div>
+          <div>
+            <label class="nhb-label" data-i18n="time">Hora</label>
+            <input class="nhb-input" id="r-heure" type="time" />
+          </div>
+        </div>
+        <div class="nhb-row2">
+          <div>
+            <label class="nhb-label" data-i18n="passengers">Pessoas</label>
+            <input class="nhb-input" id="r-personnes" type="number" min="1" value="1" />
+          </div>
+          <div>
+            <label class="nhb-label" data-i18n="bags">Malas</label>
+            <input class="nhb-input" id="r-malas" type="number" min="0" value="0" />
+          </div>
+        </div>
+        <div class="nhb-row2">
+          <div>
+            <label class="nhb-label" data-i18n="flight">N.º voo</label>
+            <input class="nhb-input" id="r-vol" />
+          </div>
+          <div>
+            <label class="nhb-label" data-i18n="room">Quarto</label>
+            <input class="nhb-input" id="r-chambre" />
+          </div>
+        </div>
+        <label class="nhb-label" data-i18n="comments">Comentários</label>
+        <textarea class="nhb-textarea" id="r-commentaires"></textarea>
+
+        <div class="prix-box">
+          <span class="nhb-meta" style="margin:0" data-i18n="price_calc">Preço calculado (indicativo)</span>
+          <div><strong id="prixAutoDisplay">—</strong></div>
+          <p class="nhb-meta" style="margin:.4rem 0 0" id="prixMatchHint" data-i18n="price_hint">Indique origem, destino, pessoas e malas.</p>
+        </div>
+
+        <button type="button" class="nhb-btn block" id="btnCreateResa" data-i18n="create_resa">Criar reserva</button>
+        <div class="nhb-msg" id="createMsg"></div>
+      </div>
+
+      <div id="tab-mdp" class="nhb-card nhb-hidden">
+        <h2 data-i18n="change_pwd">Alterar a minha palavra-passe</h2>
+        <label class="nhb-label" data-i18n="old_password">Palavra-passe atual</label>
+        <input class="nhb-input" id="old-pass" type="password" autocomplete="current-password" />
+        <label class="nhb-label" data-i18n="new_password">Nova palavra-passe</label>
+        <input class="nhb-input" id="new-pass" type="password" autocomplete="new-password" />
+        <button type="button" class="nhb-btn block" id="btnPass" data-i18n="save">Guardar</button>
+        <div class="nhb-msg" id="passMsg"></div>
+      </div>
+    </section>
+  </main>
+
+  <nav class="nhb-bottom-nav" id="nhbBottomNav" aria-label="Navigation"></nav>
+
+  <div id="detailSheet" class="nhb-sheet nhb-hidden" aria-hidden="true">
+    <div class="nhb-sheet-panel" id="detailPanel" role="dialog" aria-modal="true"></div>
+  </div>
+
+  <script src="./shared/i18n.js"></script>
+  <script src="./shared/nhb-ops.js"></script>
+  <script src="./shared/config.js"></script>
+  <script>
+    var state = {
+      token: sessionStorage.getItem('agencias_hotel_token') || '',
+      role: sessionStorage.getItem('agencias_hotel_role') || '',
+      userId: sessionStorage.getItem('agencias_hotel_userId') || '',
+      hotelId: sessionStorage.getItem('agencias_hotel_hotelId') || '',
+      agencyId: sessionStorage.getItem('agencias_hotel_agencyId') || '',
+      nom: sessionStorage.getItem('agencias_hotel_nom') || ''
+    };
+    var prixTimer = null;
+    var lastPrixAuto = null;
+    var detailReservation = null;
+    var resaFilter = { pipe: 'all', quick: 'all' };
+    var resasById = {};
+    var pricePointsLoaded = false;
+
+    function esc(s) {
+      return String(s || '').replace(/[&<>"']/g, function (c) {
+        return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c];
+      });
+    }
+
+    function brandName() {
+      return document.getElementById('brandTitle').textContent || 'Nhalabene';
+    }
+
+    function applyBrand(brand) {
+      agenciasApplyBranding(brand || { mode: 'standard' }, {
+        titleEl: document.getElementById('brandTitle'),
+        logoEl: document.getElementById('brandLogo')
+      });
+    }
+
+    function badge(st) {
+      var s = String(st || '').toLowerCase();
+      return '<span class="nhb-badge ' + esc(s) + '">' + esc(nhbStatusLabel(st)) + '</span>';
+    }
+
+    function activeTabName() {
+      var active = document.querySelector('#mainTabs button.active');
+      return active ? active.getAttribute('data-tab') : 'resas';
+    }
+
+    function loadPricePoints(force) {
+      if (!state.token) return Promise.resolve();
+      if (pricePointsLoaded && !force) return Promise.resolve();
+      return agenciasApi({ action: 'listerPrices', token: state.token }).then(function (data) {
+        if (!data.success) return;
+        var origSet = {};
+        var destSet = {};
+        (data.prices || []).forEach(function (p) {
+          if (p.actif === false) return;
+          if (p.pointDe) origSet[p.pointDe] = 1;
+          if (p.pointPour) destSet[p.pointPour] = 1;
+        });
+        document.getElementById('dl-origines').innerHTML = Object.keys(origSet).sort().map(function (o) {
+          return '<option value="' + esc(o) + '">';
+        }).join('');
+        document.getElementById('dl-destinations').innerHTML = Object.keys(destSet).sort().map(function (d) {
+          return '<option value="' + esc(d) + '">';
+        }).join('');
+        pricePointsLoaded = true;
+      }).catch(function () {});
+    }
+
+    function showTab(name) {
+      document.querySelectorAll('#mainTabs button').forEach(function (b) {
+        b.classList.toggle('active', b.getAttribute('data-tab') === name);
+      });
+      ['resas', 'nouvelle', 'mdp'].forEach(function (tabId) {
+        document.getElementById('tab-' + tabId).classList.toggle('nhb-hidden', tabId !== name);
+      });
+      if (name === 'resas') refreshResas();
+      if (name === 'nouvelle') loadPricePoints();
+    }
+
+    function showApp(brand) {
+      nhbSetAuthScreen(false);
+      document.getElementById('view-app').classList.remove('nhb-hidden');
+      document.getElementById('btnLogout').classList.remove('nhb-hidden');
+      document.getElementById('who').textContent = (state.nom || state.userId) + ' · HOTEL';
+      applyBrand(brand);
+      if (!brand && state.agencyId) {
+        agenciasApi({ action: 'getBrandingAgence', agencyId: state.agencyId, token: state.token })
+          .then(function (d) { if (d.success) applyBrand(d.branding); });
+      }
+      loadPricePoints(true);
+      showTab('resas');
+    }
+
+    function showLogin() {
+      nhbSetAuthScreen(true);
+      document.getElementById('view-app').classList.add('nhb-hidden');
+      nhbShowLoginStep('login');
+      document.getElementById('btnLogout').classList.add('nhb-hidden');
+      document.getElementById('who').textContent = '';
+      applyBrand({ mode: 'standard' });
+    }
+
+    function calcPrix() {
+      var origine = document.getElementById('r-origine').value.trim();
+      var destination = document.getElementById('r-destination').value.trim();
+      var personnes = document.getElementById('r-personnes').value;
+      var malas = document.getElementById('r-malas').value;
+      var hint = document.getElementById('prixMatchHint');
+      var disp = document.getElementById('prixAutoDisplay');
+      if (!origine || !destination) {
+        disp.textContent = '—';
+        lastPrixAuto = null;
+        hint.textContent = t('price_need_od');
+        return;
+      }
+      hint.textContent = t('calculating');
+      agenciasApi({
+        action: 'calculerPrix',
+        token: state.token,
+        origine: origine,
+        destination: destination,
+        personnes: personnes,
+        malas: malas
+      }).then(function (data) {
+        if (!data.success) {
+          disp.textContent = '—';
+          lastPrixAuto = null;
+          hint.textContent = data.error || t('price_fail');
+          return;
+        }
+        if (data.prixAuto != null) {
+          lastPrixAuto = data.prixAuto;
+          disp.textContent = Number(data.prixAuto).toFixed(2) + ' €';
+          hint.textContent = data.match ? t('price_found') : t('price_approx');
+        } else {
+          lastPrixAuto = null;
+          disp.textContent = t('price_none');
+          hint.textContent = t('price_none_hint');
+        }
+      }).catch(function () {
+        disp.textContent = '—';
+        hint.textContent = t('api_error');
+      });
+    }
+
+    function schedulePrix() {
+      clearTimeout(prixTimer);
+      prixTimer = setTimeout(calcPrix, 350);
+    }
+
+    function getDateRange(quick) {
+      if (quick === 'today') {
+        var td = nhbTodayISO();
+        return { dateDe: td, dateA: td };
+      }
+      if (quick === '7d') {
+        return { dateDe: nhbTodayISO(), dateA: nhbAddDaysISO(nhbTodayISO(), 7) };
+      }
+      return {};
+    }
+
+    function filterUpcoming(list) {
+      var today = nhbTodayISO();
+      return list.filter(function (r) {
+        var st = String(r.statut || '').toLowerCase();
+        if (st === 'cancelado' || st === 'realizado') return false;
+        return !r.dateTransfer || r.dateTransfer >= today;
+      });
+    }
+
+    function updatePipelineCounts(all) {
+      document.getElementById('pipeAll').textContent = all.length;
+      document.getElementById('pipePendente').textContent = all.filter(function (r) {
+        return String(r.statut || '').toLowerCase() === 'pendente';
+      }).length;
+      document.getElementById('pipeConfirmado').textContent = all.filter(function (r) {
+        return String(r.statut || '').toLowerCase() === 'confirmado';
+      }).length;
+      document.getElementById('pipeUpcoming').textContent = filterUpcoming(all).length;
+    }
+
+    function resaActionsHtml(r, inline) {
+      var isPendente = String(r.statut || '').toLowerCase() === 'pendente';
+      var brand = brandName();
+      var cls = inline ? 'nhb-btn ghost' : 'nhb-btn ghost';
+      var html = '<button type="button" class="' + cls + '" data-detail="' + esc(r.id) + '">' + esc(t('detail')) + '</button>';
+      if (isPendente) {
+        html += '<button type="button" class="' + cls + '" data-cancel="' + esc(r.id) + '">' + esc(t('cancel_own')) + '</button>';
+      }
+      if (r.telephone) {
+        html += '<a class="' + cls + '" href="' + esc(nhbWhatsAppUrl(r.telephone, nhbResaWhatsAppText(r, brand))) +
+          '" target="_blank" rel="noopener">' + esc(t('whatsapp')) + '</a>';
+      }
+      html += '<a class="' + cls + '" href="' + esc(nhbCalendarUrl(r)) +
+        '" target="_blank" rel="noopener">' + esc(t('calendar')) + '</a>';
+      return html;
+    }
+
+    function resaCardHtml(r) {
+      return '<div class="nhb-resa-card" data-id="' + esc(r.id) + '">' +
+        '<div class="nhb-resa-card-top">' +
+          '<span class="nhb-resa-id">' + esc(r.id) + '</span>' +
+          badge(r.statut) +
+        '</div>' +
+        '<div class="nhb-resa-trip">' + esc(r.origine) + ' → ' + esc(r.destination) + '</div>' +
+        '<div class="nhb-resa-meta">' +
+          esc(((r.clientPrenom || '') + ' ' + (r.clientNom || '')).trim()) + '<br>' +
+          esc(r.dateTransfer) + ' ' + esc(r.heureTransfer) +
+        '</div>' +
+        '<div class="nhb-resa-actions">' + resaActionsHtml(r) + '</div>' +
+      '</div>';
+    }
+
+    function bindResaActions(root) {
+      root.querySelectorAll('[data-detail]').forEach(function (btn) {
+        btn.onclick = function () {
+          showDetail(resasById[btn.getAttribute('data-detail')]);
+        };
+      });
+      root.querySelectorAll('[data-cancel]').forEach(function (btn) {
+        btn.onclick = function () {
+          cancelResa(btn.getAttribute('data-cancel'));
+        };
+      });
+    }
+
+    function renderResasList(list) {
+      resasById = {};
+      list.forEach(function (r) { resasById[r.id] = r; });
+
+      var tb = document.getElementById('resasBody');
+      var cards = document.getElementById('resasCards');
+
+      if (!list.length) {
+        var empty = nhbEmptyHtml(t('none_resas'), t('empty_resas_hint'));
+        tb.innerHTML = '<tr><td colspan="6">' + empty + '</td></tr>';
+        cards.innerHTML = empty;
+        return;
+      }
+
+      tb.innerHTML = list.map(function (r) {
+        return '<tr>' +
+          '<td>' + esc(r.id) + '</td>' +
+          '<td>' + esc((r.clientPrenom || '') + ' ' + (r.clientNom || '')) + '</td>' +
+          '<td>' + esc(r.origine) + ' → ' + esc(r.destination) + '</td>' +
+          '<td>' + esc(r.dateTransfer) + ' ' + esc(r.heureTransfer) + '</td>' +
+          '<td>' + badge(r.statut) + '</td>' +
+          '<td class="actions-inline">' + resaActionsHtml(r, true) + '</td>' +
+        '</tr>';
+      }).join('');
+
+      cards.innerHTML = list.map(resaCardHtml).join('');
+      bindResaActions(tb);
+      bindResaActions(cards);
+    }
+
+    function closeDetail() {
+      detailReservation = null;
+      var sheet = document.getElementById('detailSheet');
+      sheet.classList.add('nhb-hidden');
+      sheet.setAttribute('aria-hidden', 'true');
+      document.getElementById('detailPanel').innerHTML = '';
+    }
+
+    function showDetail(r) {
+      if (!r) return;
+      detailReservation = r;
+      var panel = document.getElementById('detailPanel');
+      var sheet = document.getElementById('detailSheet');
+      var isPendente = String(r.statut || '').toLowerCase() === 'pendente';
+      panel.innerHTML =
+        '<h2>' + esc(t('detail')) + ' ' + esc(r.id) + '</h2>' +
+        '<p class="nhb-meta">' + badge(r.statut) + '</p>' +
+        '<div class="nhb-row2">' +
+          '<div><label class="nhb-label">' + esc(t('th_client')) + '</label><p>' + esc(r.clientPrenom + ' ' + r.clientNom) + '</p></div>' +
+          '<div><label class="nhb-label">' + esc(t('th_contact')) + '</label><p>' + esc(r.telephone || '—') + ' · ' + esc(r.emailClient || '—') + '</p></div>' +
+        '</div>' +
+        '<div class="nhb-row2">' +
+          '<div><label class="nhb-label">' + esc(t('th_trip')) + '</label><p>' + esc(r.origine) + ' → ' + esc(r.destination) + '</p></div>' +
+          '<div><label class="nhb-label">' + esc(t('date')) + ' / ' + esc(t('time')) + '</label><p>' + esc(r.dateTransfer) + ' ' + esc(r.heureTransfer) + '</p></div>' +
+        '</div>' +
+        '<div class="nhb-row2">' +
+          '<div><label class="nhb-label">' + esc(t('th_pax')) + ' / ' + esc(t('th_bags')) + '</label><p>' + esc(r.personnes) + ' / ' + esc(r.malas) + '</p></div>' +
+          '<div><label class="nhb-label">' + esc(t('flight')) + ' / ' + esc(t('room')) + '</label><p>' + esc(r.numVol || '—') + ' / ' + esc(r.numChambre || '—') + '</p></div>' +
+        '</div>' +
+        (r.commentaires ? '<p class="nhb-meta">' + esc(r.commentaires) + '</p>' : '') +
+        '<div class="nhb-resa-actions" style="margin-top:1rem">' + resaActionsHtml(r) + '</div>' +
+        '<button type="button" class="nhb-btn ghost block" id="btnCloseDetail" style="margin-top:0.75rem">' + esc(t('sheet_close')) + '</button>';
+      sheet.classList.remove('nhb-hidden');
+      sheet.setAttribute('aria-hidden', 'false');
+      sheet.onclick = function (e) {
+        if (e.target === sheet) closeDetail();
+      };
+      document.getElementById('btnCloseDetail').onclick = closeDetail;
+      bindResaActions(panel);
+    }
+
+    function cancelResa(id) {
+      agenciasApi({ action: 'annulerReservation', token: state.token, id: id }).then(function (data) {
+        if (data.success) {
+          nhbToast(t('cancel_resa') + ' OK', 'ok');
+          closeDetail();
+          refreshResas();
+        } else {
+          nhbToast(data.error || t('fail'), 'err');
+        }
+      }).catch(function () {
+        nhbToast(t('api_error'), 'err');
+      });
+    }
+
+    function refreshResas() {
+      var msg = document.getElementById('resasMsg');
+      msg.className = 'nhb-msg';
+      msg.textContent = t('loading');
+      var body = { action: 'listerReservations', token: state.token };
+      var dr = getDateRange(resaFilter.quick);
+      if (dr.dateDe) body.dateDe = dr.dateDe;
+      if (dr.dateA) body.dateA = dr.dateA;
+      agenciasApi(body).then(function (data) {
+        if (!data.success) {
+          msg.className = 'nhb-msg err';
+          msg.textContent = data.error || t('error');
+          nhbToast(data.error || t('error'), 'err');
+          return;
+        }
+        var all = data.reservations || [];
+        updatePipelineCounts(all);
+        var list = all;
+        var pipe = resaFilter.pipe;
+        if (pipe === 'pendente' || pipe === 'confirmado') {
+          list = all.filter(function (r) {
+            return String(r.statut || '').toLowerCase() === pipe;
+          });
+        } else if (pipe === 'upcoming') {
+          list = filterUpcoming(all);
+        }
+        msg.textContent = tf('count_resas', { n: list.length });
+        renderResasList(list);
+      }).catch(function () {
+        msg.className = 'nhb-msg err';
+        msg.textContent = t('api_error');
+        nhbToast(t('api_error'), 'err');
+      });
+    }
+
+    function clearForm() {
+      ['r-nom', 'r-prenom', 'r-tel', 'r-email', 'r-origine', 'r-destination',
+        'r-date', 'r-heure', 'r-vol', 'r-chambre', 'r-commentaires'].forEach(function (id) {
+        document.getElementById(id).value = '';
+      });
+      document.getElementById('r-personnes').value = '1';
+      document.getElementById('r-malas').value = '0';
+      document.getElementById('prixAutoDisplay').textContent = '—';
+      document.getElementById('prixMatchHint').textContent = t('price_hint');
+      lastPrixAuto = null;
+    }
+
+    applyBrand({ mode: 'standard' });
+
+    document.querySelectorAll('#mainTabs button').forEach(function (btn) {
+      btn.onclick = function () { showTab(btn.getAttribute('data-tab')); };
+    });
+
+    document.querySelectorAll('#resaPipeline .nhb-pipe').forEach(function (btn) {
+      btn.onclick = function () {
+        resaFilter.pipe = btn.getAttribute('data-pipe') || 'all';
+        document.querySelectorAll('#resaPipeline .nhb-pipe').forEach(function (b) {
+          b.classList.toggle('active', b === btn);
+        });
+        refreshResas();
+      };
+    });
+
+    document.querySelectorAll('#resaDateChips .nhb-pipe').forEach(function (btn) {
+      btn.onclick = function () {
+        resaFilter.quick = btn.getAttribute('data-quick') || 'all';
+        document.querySelectorAll('#resaDateChips .nhb-pipe').forEach(function (b) {
+          b.classList.toggle('active', b === btn);
+        });
+        refreshResas();
+      };
+    });
+
+    ['r-origine', 'r-destination', 'r-personnes', 'r-malas'].forEach(function (id) {
+      document.getElementById(id).addEventListener('input', schedulePrix);
+      document.getElementById(id).addEventListener('change', schedulePrix);
+    });
+
+    document.getElementById('btnRefreshResas').onclick = refreshResas;
+
+    document.getElementById('btnLogin').onclick = function () {
+      var btn = document.getElementById('btnLogin');
+      var msg = document.getElementById('loginMsg');
+      msg.className = 'nhb-msg';
+      msg.textContent = t('connecting');
+      btn.classList.add('loading');
+      btn.disabled = true;
+      agenciasApi({
+        action: 'login',
+        login: document.getElementById('login').value,
+        password: document.getElementById('pass').value
+      }).then(function (data) {
+        if (data.success && data.role === 'HOTEL') {
+          state.token = data.token;
+          state.role = data.role;
+          state.userId = data.userId;
+          state.hotelId = data.hotelId || data.userId;
+          state.agencyId = data.agencyId || '';
+          state.nom = data.nom || '';
+          sessionStorage.setItem('agencias_hotel_token', state.token);
+          sessionStorage.setItem('agencias_hotel_role', state.role);
+          sessionStorage.setItem('agencias_hotel_userId', state.userId);
+          sessionStorage.setItem('agencias_hotel_hotelId', state.hotelId);
+          sessionStorage.setItem('agencias_hotel_agencyId', state.agencyId);
+          sessionStorage.setItem('agencias_hotel_nom', state.nom);
+          pricePointsLoaded = false;
+          showApp(data.branding);
+        } else {
+          msg.className = 'nhb-msg err';
+          msg.textContent = data.error || t('hotel_only');
+        }
+      }).catch(function () {
+        msg.className = 'nhb-msg err';
+        msg.textContent = t('api_error');
+      }).finally(function () {
+        btn.classList.remove('loading');
+        btn.disabled = false;
+      });
+    };
+
+    document.getElementById('btnShowReset').onclick = function () {
+      nhbShowLoginStep('reset1');
+    };
+    document.getElementById('btnGoReset2').onclick = function () {
+      var uid = document.getElementById('reset-userid');
+      if (!uid.value.trim()) {
+        uid.value = document.getElementById('reset-login').value.trim();
+      }
+      nhbShowLoginStep('reset2');
+    };
+    document.getElementById('btnBackLogin').onclick = function () {
+      nhbShowLoginStep('login');
+    };
+
+    document.getElementById('btnLogout').onclick = function () {
+      agenciasApi({ action: 'logout', token: state.token });
+      ['agencias_hotel_token', 'agencias_hotel_role', 'agencias_hotel_userId',
+        'agencias_hotel_hotelId', 'agencias_hotel_agencyId', 'agencias_hotel_nom']
+        .forEach(function (k) { sessionStorage.removeItem(k); });
+      state = { token: '', role: '', userId: '', hotelId: '', agencyId: '', nom: '' };
+      pricePointsLoaded = false;
+      showLogin();
+    };
+
+    document.getElementById('btnCreateResa').onclick = function () {
+      var msg = document.getElementById('createMsg');
+      msg.className = 'nhb-msg';
+      msg.textContent = t('creating');
+      agenciasApi({
+        action: 'creerReservation',
+        token: state.token,
+        clientNom: document.getElementById('r-nom').value.trim(),
+        clientPrenom: document.getElementById('r-prenom').value.trim(),
+        telephone: document.getElementById('r-tel').value.trim(),
+        emailClient: document.getElementById('r-email').value.trim(),
+        origine: document.getElementById('r-origine').value.trim(),
+        destination: document.getElementById('r-destination').value.trim(),
+        dateTransfer: document.getElementById('r-date').value,
+        heureTransfer: document.getElementById('r-heure').value,
+        personnes: document.getElementById('r-personnes').value,
+        malas: document.getElementById('r-malas').value,
+        numVol: document.getElementById('r-vol').value.trim(),
+        numChambre: document.getElementById('r-chambre').value.trim(),
+        commentaires: document.getElementById('r-commentaires').value.trim()
+      }).then(function (data) {
+        if (data.success) {
+          msg.className = 'nhb-msg ok';
+          msg.textContent = '';
+          nhbToast(tf('resa_created', { id: data.reservation && data.reservation.id }), 'ok');
+          clearForm();
+        } else {
+          msg.className = 'nhb-msg err';
+          msg.textContent = data.error || t('fail');
+          nhbToast(data.error || t('fail'), 'err');
+        }
+      }).catch(function () {
+        msg.className = 'nhb-msg err';
+        msg.textContent = t('api_error');
+        nhbToast(t('api_error'), 'err');
+      });
+    };
+
+    document.getElementById('btnPass').onclick = function () {
+      var msg = document.getElementById('passMsg');
+      msg.className = 'nhb-msg';
+      msg.textContent = t('saving');
+      agenciasApi({
+        action: 'changerMotDePasse',
+        token: state.token,
+        ancienMotDePasse: document.getElementById('old-pass').value,
+        nouveauMotDePasse: document.getElementById('new-pass').value
+      }).then(function (data) {
+        msg.className = 'nhb-msg ' + (data.success ? 'ok' : 'err');
+        msg.textContent = data.success ? (data.message || t('pwd_updated')) : (data.error || t('fail'));
+        if (data.success) {
+          nhbToast(data.message || t('pwd_updated'), 'ok');
+          document.getElementById('old-pass').value = '';
+          document.getElementById('new-pass').value = '';
+        } else {
+          nhbToast(data.error || t('fail'), 'err');
+        }
+      }).catch(function () {
+        msg.className = 'nhb-msg err';
+        msg.textContent = t('api_error');
+        nhbToast(t('api_error'), 'err');
+      });
+    };
+
+    nhbInitChrome({ defaultLang: 'pt' });
+    nhbBindBottomNav('#mainTabs', '#nhbBottomNav');
+
+    document.addEventListener('nhb:lang', function () {
+      if (state.token && state.role === 'HOTEL') {
+        if (activeTabName() === 'resas') refreshResas();
+        else if (activeTabName() === 'nouvelle') calcPrix();
+        if (detailReservation) showDetail(detailReservation);
+      }
+    });
+
+    if (state.token && state.role === 'HOTEL') {
+      showApp(null);
+    } else {
+      showLogin();
+    }
+    agenciasBindRecuperationMdp('');
+    (function () {
+      var btnAsk = document.getElementById('btnAskReset');
+      var msgAsk = document.getElementById('resetMsgAsk');
+      if (!btnAsk || !msgAsk) return;
+      btnAsk.onclick = function () {
+        msgAsk.className = 'nhb-msg';
+        msgAsk.textContent = t('send_code') + '…';
+        agenciasApi({
+          action: 'demanderRecuperationMdp',
+          login: document.getElementById('reset-login').value.trim()
+        }).then(function (data) {
+          msgAsk.className = 'nhb-msg ' + (data.success ? 'ok' : 'err');
+          msgAsk.textContent = data.success
+            ? (data.message + (data.emailMasque ? ' (' + data.emailMasque + ')' : '') +
+              (data.userIdHint ? ' — login : ' + data.userIdHint : ''))
+            : (data.error || t('fail'));
+          if (data.userIdHint) {
+            document.getElementById('reset-userid').value = data.userIdHint;
+          }
+        }).catch(function () {
+          msgAsk.className = 'nhb-msg err';
+          msgAsk.textContent = t('api_error');
+        });
+      };
+    })();
+    if ('serviceWorker' in navigator && (location.protocol === 'http:' || location.protocol === 'https:')) {
+      navigator.serviceWorker.register('./sw.js').catch(function () {});
+    } else if ('serviceWorker' in navigator && location.protocol === 'file:') {
+      navigator.serviceWorker.getRegistrations().then(function (regs) {
+        regs.forEach(function (r) { r.unregister(); });
+      }).catch(function () {});
+    }
+  </script>
+</body>
+</html>

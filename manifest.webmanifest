@@ -1,0 +1,12 @@
+﻿{
+  "name": "Nhalabene — Hôtel",
+  "short_name": "Nhalabene Hôtel",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0b1623",
+  "theme_color": "#c9a84c",
+  "icons": [
+    { "src": "./assets/icon_carre_192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "./assets/icon_carre_512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
