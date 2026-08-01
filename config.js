@@ -8,7 +8,7 @@ var AGENCIAS_CONFIG = {
   /* ▼▼▼  URL API Apps Script (priorité : AGENCIAS_API_URL dans le HTML)  ▼▼▼ */
   API_URL: (typeof AGENCIAS_API_URL !== 'undefined' && AGENCIAS_API_URL)
     ? AGENCIAS_API_URL
-    : 'https://COLLER_URL_APPS_SCRIPT_FOURNISSEUR_ICI/exec',
+    : 'https://script.google.com/macros/s/AKfycbym0EOCpYVyQQb0DyhxWGbgmfnCbVLhSBcw4b05qEQSG_kUnu0vJ7iiaw3fGkp-qFCv1Q/exec',
   /* ▲▲▲──────────────────────────────────────────────────────────────────▲▲▲ */
 
   VERSION: '1.2.0',
