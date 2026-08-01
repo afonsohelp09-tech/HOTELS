@@ -2,24 +2,69 @@
 <html lang="pt" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
+  <script>
+  (function (w, d) {
+    var path = (w.location && w.location.pathname) || '/';
+    var dir = /\/$/.test(path) ? path : (/\.html?$/i.test(path) ? path.replace(/[^/]+$/, '') : path + '/');
+    if (w.location.protocol !== 'file:' && !d.querySelector('base')) {
+      var b = d.createElement('base');
+      b.href = w.location.origin + dir;
+      d.head.insertBefore(b, d.head.firstChild);
+    }
+    if (/^https?:\/\/github\.com\//i.test(w.location.href) && /\/blob\//i.test(w.location.href)) {
+      d.documentElement.setAttribute('data-nhb-wrong-host', '1');
+    }
+    w.addEventListener('DOMContentLoaded', function () {
+      setTimeout(function () {
+        if (getComputedStyle(d.documentElement).getPropertyValue('--nhb-bg').trim()) return;
+        if (d.getElementById('nhb-css-missing')) return;
+        var host = d.createElement('div');
+        host.id = 'nhb-css-missing';
+        host.setAttribute('role', 'alert');
+        host.style.cssText = 'position:fixed;z-index:99999;left:0;right:0;top:0;padding:0.85rem 1rem;background:#8b3a3a;color:#fff;font:600 0.9rem/1.4 system-ui,sans-serif;text-align:center';
+        host.innerHTML = 'CSS non chargé. Utilisez l’URL <b>GitHub Pages</b> (…github.io/…/), pas github.com/blob. Poussez aussi le dossier <code>shared/</code>.';
+        d.body.insertBefore(host, d.body.firstChild);
+      }, 900);
+    });
+  })(window, document);
+  </script>
   <!-- ════════════════════════════════════════════════════════════
        API — coller l’URL /exec du backend FOURNISSEUR ci-dessous
        ════════════════════════════════════════════════════════════ -->
   <script>
-    var AGENCIAS_API_URL = 'https://COLLER_URL_APPS_SCRIPT_FOURNISSEUR_ICI/exec';
+    var AGENCIAS_API_URL = 'https://script.google.com/macros/s/AKfycbym0EOCpYVyQQb0DyhxWGbgmfnCbVLhSBcw4b05qEQSG_kUnu0vJ7iiaw3fGkp-qFCv1Q/exec';
   </script>
   <script>
 (function(){try{var t=localStorage.getItem('nhb_theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t);var l=localStorage.getItem('nhb_lang');if(l)document.documentElement.lang=l==='pt'?'pt':l;}catch(e){}})();
   </script>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Nhalabene — Portail hôtel</title>
-  <link rel="icon" type="image/png" href="./assets/favicon.png" />
-  <link rel="apple-touch-icon" href="./assets/icon_carre_192.png" />
+  <link rel="icon" type="image/svg+xml" href="./assets/favicon.svg" />
+  <link rel="apple-touch-icon" href="./assets/icon_carre_192.svg" />
   <link rel="manifest" href="manifest.webmanifest" />
   <meta name="theme-color" content="#c9a84c" />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Fraunces:opsz,wght@9..144,600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="./shared/nhb-theme.css" />
   <style>
+    body{margin:0;font-family:system-ui,sans-serif;color:#0a1628;background:#e8eef5}
+    body.nhb-on-login .nhb-app-only{display:none!important}
+    body:not(.nhb-on-login) .nhb-login-screen{display:none!important}
+    .nhb-login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1.25rem;background:linear-gradient(135deg,#0d2137,#1b4f72)}
+    .nhb-login-box{width:100%;max-width:420px;background:#fff;color:#0a1628;border-radius:18px;padding:1.5rem;box-shadow:0 16px 40px rgba(0,0,0,.28)}
+    .nhb-login-name{color:#c9a84c;font-size:1.5rem;margin:0;text-align:center}
+    .nhb-login-sub,.nhb-login-hint,.nhb-field label{color:#3d4f63}
+    .nhb-field input,.nhb-input,.nhb-select,.nhb-textarea{width:100%;min-height:44px;padding:.65rem .75rem;border:1.5px solid rgba(13,33,55,.22);border-radius:10px;background:#fff;color:#0a1628;font:inherit;box-sizing:border-box}
+    .nhb-btn-primary,.nhb-btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:.7rem 1rem;border:0;border-radius:10px;background:#c9a84c;color:#1a1508;font-weight:600;cursor:pointer;font:inherit}
+    .nhb-btn-primary{width:100%;background:linear-gradient(135deg,#0d2137,#1b4f72);color:#fff}
+    .nhb-btn.ghost{background:#fff;border:1.5px solid rgba(13,33,55,.28);color:#0a1628}
+    .nhb-header{display:flex;flex-wrap:wrap;gap:.5rem;padding:.75rem;background:#0d2137;color:#e8eef6}
+    .nhb-header h1{color:#c9a84c;margin:0}
+    .nhb-main{max-width:1100px;margin:0 auto;padding:1rem}
+    .nhb-card{background:#fff;border:1px solid rgba(13,33,55,.14);border-radius:14px;padding:1rem;margin-bottom:.85rem}
+    .nhb-card h2{color:#7a5f1a;margin-top:0}
+    .nhb-meta,.nhb-label,label.nhb-label{color:#3d4f63}
+    .nhb-link{color:#1b4f72}
+    .nhb-hidden{display:none!important}
     .prix-box {
       background: rgba(0,0,0,.22);
       border: 1px solid var(--nhb-line);
@@ -37,7 +82,7 @@
     <div class="nhb-login-top"><div id="nhbLoginChrome"></div></div>
     <div class="nhb-login-box">
       <div class="nhb-login-brand">
-        <div class="nhb-login-emblem"><img src="./assets/icon_carre_512.png" alt="" /></div>
+        <div class="nhb-login-emblem"><img src="./assets/icon_carre_512.svg" alt="" /></div>
         <p class="nhb-login-name" id="loginBrandName">Nhalabene</p>
         <p class="nhb-login-sub" data-i18n="login_sub_hotel">Lisboa · Portal hotel</p>
       </div>

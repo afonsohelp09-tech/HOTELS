@@ -7,8 +7,8 @@ var SHELL = [
   './shared/i18n.js',
   './shared/nhb-ops.js',
   './shared/config.js',
-  './assets/icon_carre_192.png',
-  './assets/icon_carre_512.png'
+  './assets/icon_carre_192.svg',
+  './assets/icon_carre_512.svg'
 ];
 
 self.addEventListener('install', function (e) {
