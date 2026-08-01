@@ -8,9 +8,9 @@ var NHB_I18N = {
     lang_name: 'Português',
     brand: 'Nhalabene',
     hub_title: 'Nhalabene',
-    hub_lead: 'Plataforma de transfers para agências — código e base no fornecedor. Identidade Nhalabene em modo standard; logo e nome próprios se configurados para a agência.',
+    hub_lead: 'Plataforma de transferências para agências — código e base no fornecedor. Identidade Nhalabene em modo padrão; logo e nome próprios se configurados para a agência.',
     hub_supplier: 'Fornecedor',
-    hub_supplier_desc: 'Agências, branding (standard Nhalabene ou custom), controlo global.',
+    hub_supplier_desc: 'Agências, identidade visual (padrão Nhalabene ou personalizado), controlo global.',
     hub_agency: 'Portal agência',
     hub_agency_desc: 'Hotéis, preços, motoristas, equipa, confirmação de reservas.',
     hub_hotel: 'Portal hotel',
@@ -18,14 +18,14 @@ var NHB_I18N = {
     theme_dark: 'Escuro',
     theme_light: 'Claro',
     language: 'Idioma',
-    hub: 'Hub',
+    hub: 'Início',
     logout: 'Terminar sessão',
     login: 'Entrar',
     login_id: 'Identificador (ID)',
     password: 'Palavra-passe',
     forgot_title: 'Palavra-passe esquecida',
     forgot_hint: 'Um código é enviado para o email da conta. Um admin também pode repor a palavra-passe.',
-    forgot_login_email: 'Login ou email da conta',
+    forgot_login_email: 'ID ou email da conta',
     send_code: 'Receber código por email',
     code_received: 'Código recebido',
     new_password: 'Nova palavra-passe',
@@ -55,11 +55,11 @@ var NHB_I18N = {
     tab_new: 'Nova reserva',
     // agency
     agency_portal: 'Portal agência',
-    agency_login_hint: 'Login da equipa (OWNER / ADMIN / STAFF) — ID + palavra-passe.',
+    agency_login_hint: 'Início de sessão da equipa (OWNER / ADMIN / STAFF) — ID + palavra-passe.',
     hotel_portal: 'Portal hotel',
-    hotel_login_hint: 'Crie reservas para os seus clientes. A agência confirma depois. Login = ID do hotel + palavra-passe.',
+    hotel_login_hint: 'Crie reservas para os seus clientes. A agência confirma depois. ID do hotel + palavra-passe.',
     supplier_portal: 'Fornecedor',
-    supplier_login_hint: 'Administração do sistema — criação e branding das agências.',
+    supplier_login_hint: 'Administração do sistema — criação e identidade visual das agências.',
     confirm: 'Confirmar',
     cancel_resa: 'Cancelar',
     done: 'Realizado',
@@ -105,7 +105,7 @@ var NHB_I18N = {
     th_name: 'Nome',
     th_tel: 'Tel.',
     th_role: 'Função',
-    th_login: 'Login',
+    th_login: 'ID de acesso',
     th_display: 'Exibição',
     th_mode: 'Modo',
     th_internal: 'Nome interno',
@@ -113,7 +113,7 @@ var NHB_I18N = {
     th_from: 'De',
     th_to: 'Para',
     th_base: 'Base €',
-    th_pax: 'Pax',
+    th_pax: 'Pessoas',
     th_bags: 'Malas',
     th_surcharge: 'Sobretaxa',
     th_vehicle: 'Veículo',
@@ -143,13 +143,13 @@ var NHB_I18N = {
     edit_agency: 'Editar — {id}',
     agency_updated: 'Agência atualizada',
     agency_created: 'Agência criada',
-    brand_mode_hint: 'Modo <strong>standard</strong> → identidade <span id="stdName">Nhalabene</span> (ícone N). Modo <strong>custom</strong> → nome / logo da agência.',
-    brand_standard: 'Standard — Nhalabene',
+    brand_mode_hint: 'Modo <strong>padrão</strong> → identidade <span id="stdName">Nhalabene</span> (ícone N). Modo <strong>personalizado</strong> → nome / logo da agência.',
+    brand_standard: 'Padrão — Nhalabene',
     brand_custom: 'Personalizado — nome e/ou logo',
     display_name: 'Nome apresentado (marca)',
     logo_url: 'URL do logo',
-    logo_fallback: 'Campo vazio → usa o standard para este campo.',
-    owner_login: 'Login OWNER (ID) *',
+    logo_fallback: 'Campo vazio → usa o padrão para este campo.',
+    owner_login: 'ID OWNER *',
     owner_pass: 'Palavra-passe OWNER *',
     owner_email: 'Email OWNER * (recuperação)',
     owner_sent: 'As credenciais OWNER são enviadas por email na criação.',
@@ -167,9 +167,9 @@ var NHB_I18N = {
     active: 'Ativo',
     notes: 'Notas',
     team_hint: 'Criar contas STAFF / ADMIN e definir permissões.',
-    member_hint: 'Na criação: login (ID) + palavra-passe + email. As credenciais são enviadas por email.',
+    member_hint: 'Na criação: ID de acesso + palavra-passe + email. As credenciais são enviadas por email.',
     reset_form: 'Repor',
-    hotel_email: 'Email * (login + recuperação)',
+    hotel_email: 'Email * (acesso + recuperação)',
     pass_on_create: 'obrigatória na criação',
     leave_blank: 'deixar vazio = sem alteração',
     auto_id: 'auto se vazio',
@@ -214,14 +214,52 @@ var NHB_I18N = {
     sheet_close: 'Fechar',
     copied: 'Copiado',
     call: 'Ligar',
-    relay_url: 'URL relay',
-    relay_token: 'Token relay',
+    relay_url: 'URL do relay',
+    relay_token: 'Token do relay',
     relay_hint: 'URL e token para integração externa.',
     cancel_own: 'Cancelar (própria)',
     points_from_prices: 'Pontos calculados a partir dos preços',
     new_resa_tab: 'Nova reserva',
     ops_toolbar: 'Ferramentas',
-    login_footer: 'Nhalabene Transfers'
+    login_footer: 'Nhalabene',
+    doc_title_supplier: 'Nhalabene — Admin fornecedor',
+    doc_title_agency: 'Nhalabene — Portal agência',
+    doc_title_hotel: 'Nhalabene — Portal hotel',
+    agency_id: 'ID da agência',
+    hotel_id: 'ID do hotel',
+    driver_id: 'ID do motorista',
+    price_base: 'Preço base (€) *',
+    pax_min: 'Pessoas mín.',
+    pax_max: 'Pessoas máx.',
+    bags_min: 'Malas mín.',
+    bags_max: 'Malas máx.',
+    status_actif: 'Ativo',
+    status_inactif: 'Inativo',
+    login_blocked: 'bloqueado',
+    relay_ok: 'Relay ativo',
+    ui_error: 'Erro de interface: ',
+    mode_standard: 'padrão',
+    mode_custom: 'personalizado',
+    perm_voir_resas: 'Ver reservas',
+    perm_creer_resas: 'Criar reservas',
+    perm_confirmer_resas: 'Confirmar',
+    perm_modifier_resas: 'Editar reservas',
+    perm_annuler_resas: 'Cancelar',
+    perm_voir_prix: 'Ver preços',
+    perm_modifier_prix: 'Editar preços',
+    perm_gerer_hotels: 'Gerir hotéis',
+    perm_gerer_chauffeurs: 'Gerir motoristas',
+    perm_gerer_equipe: 'Gerir equipa',
+    perm_voir_finance: 'Ver finanças',
+    wa_pax: 'Pessoas',
+    wa_bags: 'Malas',
+    wa_flight: 'Voo',
+    wa_tel: 'Tel.',
+    cal_transfer: 'Transferência',
+    csv_headers: 'ID;Hotel;Cliente;Tel.;Origem;Destino;Data;Hora;Pessoas;Malas;Voo;Estado;Preço;Motorista;Comentários',
+    aria_language: 'Idioma',
+    aria_theme: 'Tema',
+    vehicle_ph: 'Sedan / Van'
   },
   en: {
     lang_name: 'English',
@@ -438,7 +476,45 @@ var NHB_I18N = {
     points_from_prices: 'Points calculated from prices',
     new_resa_tab: 'New reservation',
     ops_toolbar: 'Tools',
-    login_footer: 'Nhalabene Transfers'
+    login_footer: 'Nhalabene',
+    doc_title_supplier: 'Nhalabene — Supplier admin',
+    doc_title_agency: 'Nhalabene — Agency portal',
+    doc_title_hotel: 'Nhalabene — Hotel portal',
+    agency_id: 'Agency ID',
+    hotel_id: 'Hotel ID',
+    driver_id: 'Driver ID',
+    price_base: 'Base price (€) *',
+    pax_min: 'Min passengers',
+    pax_max: 'Max passengers',
+    bags_min: 'Min bags',
+    bags_max: 'Max bags',
+    status_actif: 'Active',
+    status_inactif: 'Inactive',
+    login_blocked: 'blocked',
+    relay_ok: 'Relay active',
+    ui_error: 'Interface error: ',
+    mode_standard: 'standard',
+    mode_custom: 'custom',
+    perm_voir_resas: 'View reservations',
+    perm_creer_resas: 'Create reservations',
+    perm_confirmer_resas: 'Confirm',
+    perm_modifier_resas: 'Edit reservations',
+    perm_annuler_resas: 'Cancel',
+    perm_voir_prix: 'View prices',
+    perm_modifier_prix: 'Edit prices',
+    perm_gerer_hotels: 'Manage hotels',
+    perm_gerer_chauffeurs: 'Manage drivers',
+    perm_gerer_equipe: 'Manage team',
+    perm_voir_finance: 'View finance',
+    wa_pax: 'Pax',
+    wa_bags: 'Bags',
+    wa_flight: 'Flight',
+    wa_tel: 'Tel.',
+    cal_transfer: 'Transfer',
+    csv_headers: 'ID;Hotel;Client;Tel;Origin;Destination;Date;Time;Pax;Bags;Flight;Status;Price;Driver;Comments',
+    aria_language: 'Language',
+    aria_theme: 'Theme',
+    vehicle_ph: 'Sedan / Van'
   },
   fr: {
     lang_name: 'Français',
@@ -655,7 +731,45 @@ var NHB_I18N = {
     points_from_prices: 'Points calculés à partir des prix',
     new_resa_tab: 'Nouvelle réservation',
     ops_toolbar: 'Outils',
-    login_footer: 'Nhalabene Transfers'
+    login_footer: 'Nhalabene',
+    doc_title_supplier: 'Nhalabene — Admin fournisseur',
+    doc_title_agency: 'Nhalabene — Portail agence',
+    doc_title_hotel: 'Nhalabene — Portail hôtel',
+    agency_id: 'ID agence',
+    hotel_id: 'ID hôtel',
+    driver_id: 'ID chauffeur',
+    price_base: 'Prix de base (€) *',
+    pax_min: 'Pax min.',
+    pax_max: 'Pax max.',
+    bags_min: 'Bagages min.',
+    bags_max: 'Bagages max.',
+    status_actif: 'Actif',
+    status_inactif: 'Inactif',
+    login_blocked: 'bloqué',
+    relay_ok: 'Relay actif',
+    ui_error: 'Erreur interface : ',
+    mode_standard: 'standard',
+    mode_custom: 'personnalisé',
+    perm_voir_resas: 'Voir réservations',
+    perm_creer_resas: 'Créer réservations',
+    perm_confirmer_resas: 'Confirmer',
+    perm_modifier_resas: 'Modifier réservations',
+    perm_annuler_resas: 'Annuler',
+    perm_voir_prix: 'Voir prix',
+    perm_modifier_prix: 'Modifier prix',
+    perm_gerer_hotels: 'Gérer hôtels',
+    perm_gerer_chauffeurs: 'Gérer chauffeurs',
+    perm_gerer_equipe: 'Gérer équipe',
+    perm_voir_finance: 'Voir finance',
+    wa_pax: 'Pers.',
+    wa_bags: 'Bagages',
+    wa_flight: 'Vol',
+    wa_tel: 'Tél.',
+    cal_transfer: 'Transfert',
+    csv_headers: 'ID;Hôtel;Client;Tél;Origine;Destination;Date;Heure;Pers;Bagages;Vol;Statut;Prix;Chauffeur;Commentaires',
+    aria_language: 'Langue',
+    aria_theme: 'Thème',
+    vehicle_ph: 'Berline / Van'
   },
   es: {
     lang_name: 'Español',
@@ -872,7 +986,45 @@ var NHB_I18N = {
     points_from_prices: 'Puntos calculados a partir de precios',
     new_resa_tab: 'Nueva reserva',
     ops_toolbar: 'Herramientas',
-    login_footer: 'Nhalabene Transfers'
+    login_footer: 'Nhalabene',
+    doc_title_supplier: 'Nhalabene — Admin proveedor',
+    doc_title_agency: 'Nhalabene — Portal agencia',
+    doc_title_hotel: 'Nhalabene — Portal hotel',
+    agency_id: 'ID de agencia',
+    hotel_id: 'ID de hotel',
+    driver_id: 'ID de conductor',
+    price_base: 'Precio base (€) *',
+    pax_min: 'Pax mín.',
+    pax_max: 'Pax máx.',
+    bags_min: 'Maletas mín.',
+    bags_max: 'Maletas máx.',
+    status_actif: 'Activo',
+    status_inactif: 'Inactivo',
+    login_blocked: 'bloqueado',
+    relay_ok: 'Relay activo',
+    ui_error: 'Error de interfaz: ',
+    mode_standard: 'estándar',
+    mode_custom: 'personalizado',
+    perm_voir_resas: 'Ver reservas',
+    perm_creer_resas: 'Crear reservas',
+    perm_confirmer_resas: 'Confirmar',
+    perm_modifier_resas: 'Editar reservas',
+    perm_annuler_resas: 'Cancelar',
+    perm_voir_prix: 'Ver precios',
+    perm_modifier_prix: 'Editar precios',
+    perm_gerer_hotels: 'Gestionar hoteles',
+    perm_gerer_chauffeurs: 'Gestionar conductores',
+    perm_gerer_equipe: 'Gestionar equipo',
+    perm_voir_finance: 'Ver finanzas',
+    wa_pax: 'Personas',
+    wa_bags: 'Maletas',
+    wa_flight: 'Vuelo',
+    wa_tel: 'Tel.',
+    cal_transfer: 'Traslado',
+    csv_headers: 'ID;Hotel;Cliente;Tel;Origen;Destino;Fecha;Hora;Personas;Maletas;Vuelo;Estado;Precio;Conductor;Comentarios',
+    aria_language: 'Idioma',
+    aria_theme: 'Tema',
+    vehicle_ph: 'Sedán / Van'
   }
 };
 
@@ -898,7 +1050,15 @@ function tf(key, vars) {
 function nhbStatusLabel(st) {
   var s = String(st || '').toLowerCase();
   if (s === 'pendente' || s === 'confirmado' || s === 'cancelado' || s === 'realizado') return t(s);
+  if (s === 'actif' || s === 'ativo' || s === 'active') return t('status_actif');
+  if (s === 'inactif' || s === 'inativo' || s === 'inactive') return t('status_inactif');
   return st || '—';
+}
+
+function nhbModeLabel(mode) {
+  var m = String(mode || 'standard').toLowerCase();
+  if (m === 'custom') return t('mode_custom');
+  return t('mode_standard');
 }
 
 function nhbBindBottomNav(tabsSel, bottomSel) {
@@ -951,7 +1111,13 @@ function nhbApplyI18n(root) {
     var k = el.getAttribute('data-i18n-title');
     if (k) el.setAttribute('title', t(k));
   });
+  root.querySelectorAll('[data-i18n-aria]').forEach(function (el) {
+    var k = el.getAttribute('data-i18n-aria');
+    if (k) el.setAttribute('aria-label', t(k));
+  });
   document.documentElement.lang = NHB_LANG === 'pt' ? 'pt' : NHB_LANG;
+  var titleKey = document.body.getAttribute('data-i18n-title-doc');
+  if (titleKey) document.title = t(titleKey);
 }
 
 function nhbSetLang(lang) {
@@ -995,19 +1161,19 @@ function nhbChromeMarkup(opts) {
     ? ''
     : '<button type="button" class="nhb-chrome-btn nhb-nav-toggle" id="nhbNavToggle" data-i18n="nav_menu" aria-expanded="false">Menu</button>';
   return (
-    '<div class="nhb-lang-pills" role="group" aria-label="Language">' +
+    '<div class="nhb-lang-pills" role="group" data-i18n-aria="aria_language" aria-label="' + t('aria_language') + '">' +
       '<button type="button" class="nhb-lp" data-lang="pt">PT</button>' +
       '<button type="button" class="nhb-lp" data-lang="en">EN</button>' +
       '<button type="button" class="nhb-lp" data-lang="fr">FR</button>' +
       '<button type="button" class="nhb-lp" data-lang="es">ES</button>' +
     '</div>' +
-    '<select class="nhb-lang-select-mobile" id="nhbLangSel" aria-label="Language">' +
+    '<select class="nhb-lang-select-mobile" id="nhbLangSel" data-i18n-aria="aria_language" aria-label="' + t('aria_language') + '">' +
       '<option value="pt">PT</option><option value="en">EN</option>' +
       '<option value="fr">FR</option><option value="es">ES</option>' +
     '</select>' +
-    '<div class="nhb-theme-seg" role="group" aria-label="Theme">' +
-      '<button type="button" class="nhb-theme-pick" data-theme-pick="light" title="Light">☀</button>' +
-      '<button type="button" class="nhb-theme-pick" data-theme-pick="dark" title="Dark">☾</button>' +
+    '<div class="nhb-theme-seg" role="group" data-i18n-aria="aria_theme" aria-label="' + t('aria_theme') + '">' +
+      '<button type="button" class="nhb-theme-pick" data-theme-pick="light" data-i18n-title="theme_light" title="' + t('theme_light') + '">☀</button>' +
+      '<button type="button" class="nhb-theme-pick" data-theme-pick="dark" data-i18n-title="theme_dark" title="' + t('theme_dark') + '">☾</button>' +
     '</div>' +
     menu
   );

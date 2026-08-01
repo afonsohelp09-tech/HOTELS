@@ -31,27 +31,30 @@ function nhbWhatsAppUrl(tel, text) {
 
 function nhbResaWhatsAppText(r, brand) {
   brand = brand || 'Nhalabene';
+  var pax = (typeof t === 'function') ? t('wa_pax') : 'Pax';
+  var bags = (typeof t === 'function') ? t('wa_bags') : 'Bags';
+  var flight = (typeof t === 'function') ? t('wa_flight') : 'Flight';
+  var telL = (typeof t === 'function') ? t('wa_tel') : 'Tel.';
   return brand + ' #' + (r.id || '') + '\n' +
     (r.clientPrenom || '') + ' ' + (r.clientNom || '') + '\n' +
     (r.origine || '') + ' → ' + (r.destination || '') + '\n' +
     (r.dateTransfer || '') + ' ' + (r.heureTransfer || '') + '\n' +
-    'Pax: ' + (r.personnes || '') + ' | Bags: ' + (r.malas || '') +
-    (r.numVol ? ('\nFlight: ' + r.numVol) : '') +
-    (r.telephone ? ('\nTel: ' + r.telephone) : '');
+    pax + ': ' + (r.personnes || '') + ' | ' + bags + ': ' + (r.malas || '') +
+    (r.numVol ? ('\n' + flight + ': ' + r.numVol) : '') +
+    (r.telephone ? ('\n' + telL + ' ' + r.telephone) : '');
 }
 
 function nhbCalendarUrl(r) {
-  // Google Calendar template
   function pad(n){ return ('0'+n).slice(-2); }
   var d = String(r.dateTransfer || '').replace(/-/g,'');
   var hm = String(r.heureTransfer || '12:00').split(':');
   var h = pad(parseInt(hm[0]||12,10));
   var m = pad(parseInt(hm[1]||0,10));
   var start = d + 'T' + h + m + '00';
-  // +2h end
   var endH = pad((parseInt(h,10)+2)%24);
   var end = d + 'T' + endH + m + '00';
-  var text = encodeURIComponent('Transfer ' + (r.id||''));
+  var cal = (typeof t === 'function') ? t('cal_transfer') : 'Transfer';
+  var text = encodeURIComponent(cal + ' ' + (r.id||''));
   var details = encodeURIComponent(nhbResaWhatsAppText(r));
   var loc = encodeURIComponent((r.origine||'') + ' → ' + (r.destination||''));
   return 'https://calendar.google.com/calendar/render?action=TEMPLATE&text=' + text +
@@ -60,7 +63,9 @@ function nhbCalendarUrl(r) {
 
 function nhbExportResasCsv(rows, filename) {
   rows = rows || [];
-  var headers = ['ID','Hotel','Client','Tel','Origine','Destination','Date','Heure','Pax','Malas','Vol','Statut','Prix','Chauffeur','Commentaires'];
+  var headers = (typeof t === 'function' && t('csv_headers'))
+    ? t('csv_headers').split(';')
+    : ['ID','Hotel','Client','Tel','Origin','Destination','Date','Time','Pax','Bags','Flight','Status','Price','Driver','Comments'];
   function cell(v) {
     var s = String(v == null ? '' : v).replace(/"/g, '""');
     return '"' + s + '"';
@@ -70,7 +75,8 @@ function nhbExportResasCsv(rows, filename) {
     lines.push([
       r.id, r.hotelId, ((r.clientPrenom||'')+' '+(r.clientNom||'')).trim(),
       r.telephone, r.origine, r.destination, r.dateTransfer, r.heureTransfer,
-      r.personnes, r.malas, r.numVol, r.statut,
+      r.personnes, r.malas, r.numVol,
+      (typeof nhbStatusLabel === 'function' ? nhbStatusLabel(r.statut) : r.statut),
       (r.prixFinal != null ? r.prixFinal : r.prixAuto),
       r.chauffeurId, r.commentaires
     ].map(cell).join(';'));

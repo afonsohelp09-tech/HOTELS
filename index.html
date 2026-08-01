@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt" data-theme="dark">
+<html lang="pt" data-theme="dark" data-i18n-title-doc="doc_title_hotel">
 <head>
   <meta charset="UTF-8" />
   <!-- ════════════════════════════════════════════════════════════
@@ -12,33 +12,33 @@
 (function(){try{var t=localStorage.getItem('nhb_theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t);var l=localStorage.getItem('nhb_lang');if(l)document.documentElement.lang=l==='pt'?'pt':l;}catch(e){}})();
   </script>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Nhalabene — Portail hôtel</title>
-  <link rel="icon" type="image/svg+xml" href="favicon.png" />
+  <title>Nhalabene — Portal hotel</title>
+  <link rel="icon" type="image/png" href="favicon.png" />
   <link rel="apple-touch-icon" href="icon-192.png" />
   <link rel="manifest" href="manifest.webmanifest" />
   <meta name="theme-color" content="#c9a84c" />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Fraunces:opsz,wght@9..144,600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="nhb-theme.css" />
 <style id="nhb-theme-inline">
-/* Nhalabene â€” thÃ¨me inline (dossier autonome / GitHub Pages) */
+/* Nhalabene — thème inline (dossier autonome / GitHub Pages) */
 /* Nhalabene AGENCIAS — thème foncé (défaut) + clair + mobile */
 :root,
 html[data-theme="dark"] {
-  --nhb-bg: #0b1623;
-  --nhb-bg2: #162033;
-  --nhb-panel: #1a2838;
+  --nhb-bg: #0a1420;
+  --nhb-bg2: #152536;
+  --nhb-panel: #1c2d40;
   --nhb-navy: #0d2137;
-  --nhb-text: #e8eef6;
-  --nhb-muted: #9aa8bc;
-  --nhb-gold: #c9a84c;
-  --nhb-gold-l: #e8cc80;
-  --nhb-line: rgba(232, 238, 246, 0.12);
-  --nhb-ok: #8fd6b5;
-  --nhb-err: #f0a8a0;
-  --nhb-warn: #e8c56a;
-  --nhb-input-bg: #122033;
-  --nhb-header-bg: rgba(11, 22, 35, 0.92);
-  --nhb-shadow: 0 8px 28px rgba(0, 0, 0, 0.35);
+  --nhb-text: #f2f6fb;
+  --nhb-muted: #b7c4d6;
+  --nhb-gold: #e0c06a;
+  --nhb-gold-l: #f0d98a;
+  --nhb-line: rgba(232, 238, 246, 0.22);
+  --nhb-ok: #9ee0c0;
+  --nhb-err: #f5b4ac;
+  --nhb-warn: #f0d078;
+  --nhb-input-bg: #101c2c;
+  --nhb-header-bg: rgba(10, 20, 32, 0.96);
+  --nhb-shadow: 0 10px 32px rgba(0, 0, 0, 0.45);
   --font: "DM Sans", system-ui, sans-serif;
   --display: "Fraunces", Georgia, serif;
   --safe-bottom: env(safe-area-inset-bottom, 0px);
@@ -244,6 +244,22 @@ label.nhb-label { display: block; font-size: 0.75rem; color: var(--nhb-muted); m
   border: 1.5px solid var(--nhb-line);
   color: var(--nhb-text);
 }
+html[data-theme="dark"] .nhb-btn {
+  background: #e0c06a;
+  color: #1a1508;
+  border: 1px solid #c9a84c;
+  font-weight: 700;
+}
+html[data-theme="dark"] .nhb-btn.ghost {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(232, 238, 246, 0.32);
+  color: #f2f6fb;
+}
+html[data-theme="dark"] .nhb-btn.ghost:hover {
+  background: rgba(224, 192, 106, 0.14);
+  border-color: #e0c06a;
+  color: #f0d98a;
+}
 html[data-theme="light"] .nhb-btn {
   background: #c9a84c;
   color: #1a1508;
@@ -259,6 +275,11 @@ html[data-theme="light"] .nhb-btn.ghost:hover {
   border-color: #0d2137;
 }
 .nhb-btn.danger { background: #8b3a3a; color: #fff; }
+html[data-theme="dark"] .nhb-btn.danger {
+  background: #c44a42;
+  color: #fff;
+  border: 1px solid #e07068;
+}
 html[data-theme="light"] .nhb-btn.danger {
   background: #a12e28;
   color: #fff;
@@ -1082,6 +1103,163 @@ html[data-theme="light"] select option {
   background: #fff;
 }
 
+/* ═══ Thème foncé — compte ouvert (session) : lisibilité max ═══ */
+html[data-theme="dark"] body:not(.nhb-on-login) {
+  color: #f2f6fb;
+}
+html[data-theme="dark"] body:not(.nhb-on-login) .nhb-card {
+  background: linear-gradient(165deg, #1c2d40, #152536);
+  border-color: rgba(224, 192, 106, 0.22);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.4);
+}
+html[data-theme="dark"] body:not(.nhb-on-login) .nhb-card h2,
+html[data-theme="dark"] body:not(.nhb-on-login) .nhb-empty-title,
+html[data-theme="dark"] body:not(.nhb-on-login) .nhb-resa-id,
+html[data-theme="dark"] body:not(.nhb-on-login) .nhb-stat b {
+  color: #f0d98a;
+}
+html[data-theme="dark"] body:not(.nhb-on-login) .nhb-meta,
+html[data-theme="dark"] body:not(.nhb-on-login) .nhb-label,
+html[data-theme="dark"] body:not(.nhb-on-login) label.nhb-label,
+html[data-theme="dark"] body:not(.nhb-on-login) .nhb-msg,
+html[data-theme="dark"] body:not(.nhb-on-login) .nhb-resa-meta,
+html[data-theme="dark"] body:not(.nhb-on-login) .nhb-empty,
+html[data-theme="dark"] body:not(.nhb-on-login) .nhb-table th,
+html[data-theme="dark"] body:not(.nhb-on-login) .nhb-stat span {
+  color: #c5d0e0;
+}
+html[data-theme="dark"] body:not(.nhb-on-login) .nhb-input,
+html[data-theme="dark"] body:not(.nhb-on-login) .nhb-select,
+html[data-theme="dark"] body:not(.nhb-on-login) .nhb-textarea {
+  background: #0e1a28;
+  border: 1.5px solid rgba(232, 238, 246, 0.28);
+  color: #f2f6fb;
+}
+html[data-theme="dark"] body:not(.nhb-on-login) .nhb-input:focus,
+html[data-theme="dark"] body:not(.nhb-on-login) .nhb-select:focus,
+html[data-theme="dark"] body:not(.nhb-on-login) .nhb-textarea:focus {
+  outline: none;
+  border-color: #e0c06a;
+  box-shadow: 0 0 0 3px rgba(224, 192, 106, 0.22);
+}
+html[data-theme="dark"] body:not(.nhb-on-login) ::placeholder {
+  color: #8fa0b5;
+  opacity: 1;
+}
+html[data-theme="dark"] body:not(.nhb-on-login) .nhb-tabs button {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(232, 238, 246, 0.28);
+  color: #c5d0e0;
+}
+html[data-theme="dark"] body:not(.nhb-on-login) .nhb-tabs button.active {
+  background: rgba(224, 192, 106, 0.18);
+  border-color: #e0c06a;
+  color: #f0d98a;
+  font-weight: 700;
+}
+html[data-theme="dark"] body:not(.nhb-on-login) .nhb-pipe {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(232, 238, 246, 0.28);
+  color: #c5d0e0;
+}
+html[data-theme="dark"] body:not(.nhb-on-login) .nhb-pipe b { color: #f0d98a; }
+html[data-theme="dark"] body:not(.nhb-on-login) .nhb-pipe.active {
+  background: rgba(224, 192, 106, 0.16);
+  border-color: #e0c06a;
+  color: #f0d98a;
+}
+html[data-theme="dark"] body:not(.nhb-on-login) .nhb-badge {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(232, 238, 246, 0.28);
+  color: #d7e0ec;
+}
+html[data-theme="dark"] body:not(.nhb-on-login) .nhb-badge.pendente {
+  color: #f0d078;
+  background: rgba(240, 208, 120, 0.14);
+  border-color: rgba(240, 208, 120, 0.45);
+}
+html[data-theme="dark"] body:not(.nhb-on-login) .nhb-badge.confirmado {
+  color: #9ee0c0;
+  background: rgba(158, 224, 192, 0.12);
+  border-color: rgba(158, 224, 192, 0.4);
+}
+html[data-theme="dark"] body:not(.nhb-on-login) .nhb-badge.cancelado {
+  color: #f5b4ac;
+  background: rgba(245, 180, 172, 0.12);
+  border-color: rgba(245, 180, 172, 0.4);
+}
+html[data-theme="dark"] body:not(.nhb-on-login) .nhb-badge.realizado {
+  color: #7ec4f0;
+  background: rgba(126, 196, 240, 0.12);
+  border-color: rgba(126, 196, 240, 0.4);
+}
+html[data-theme="dark"] body:not(.nhb-on-login) .nhb-badge.custom {
+  color: #f0d98a;
+  border-color: rgba(224, 192, 106, 0.5);
+}
+html[data-theme="dark"] body:not(.nhb-on-login) .nhb-badge.relay {
+  color: #9ee0c0;
+  border-color: rgba(158, 224, 192, 0.45);
+}
+html[data-theme="dark"] body:not(.nhb-on-login) .nhb-table td,
+html[data-theme="dark"] body:not(.nhb-on-login) .nhb-resa-trip,
+html[data-theme="dark"] body:not(.nhb-on-login) .nhb-perms label {
+  color: #f2f6fb;
+}
+html[data-theme="dark"] body:not(.nhb-on-login) .nhb-resa-card {
+  background: #1c2d40;
+  border-color: rgba(224, 192, 106, 0.2);
+}
+html[data-theme="dark"] body:not(.nhb-on-login) .nhb-sheet-panel {
+  background: #1c2d40;
+  color: #f2f6fb;
+  border-color: rgba(224, 192, 106, 0.25);
+}
+html[data-theme="dark"] body:not(.nhb-on-login) .nhb-stat {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(232, 238, 246, 0.2);
+}
+html[data-theme="dark"] body:not(.nhb-on-login) .nhb-bottom-nav {
+  background: #0d2137;
+  border-top: 1px solid rgba(224, 192, 106, 0.28);
+  box-shadow: 0 -6px 20px rgba(0, 0, 0, 0.35);
+}
+html[data-theme="dark"] body:not(.nhb-on-login) .nhb-bottom-nav button {
+  color: #c5d0e0;
+}
+html[data-theme="dark"] body:not(.nhb-on-login) .nhb-bottom-nav button.active {
+  color: #f0d98a;
+  background: rgba(224, 192, 106, 0.16);
+}
+html[data-theme="dark"] body:not(.nhb-on-login) .nhb-link {
+  color: #e0c06a;
+}
+html[data-theme="dark"] body:not(.nhb-on-login) .nhb-header .nhb-link {
+  color: rgba(242, 246, 251, 0.9);
+}
+html[data-theme="dark"] body:not(.nhb-on-login) .nhb-header .nhb-meta {
+  color: rgba(242, 246, 251, 0.82);
+}
+html[data-theme="dark"] body:not(.nhb-on-login) .nhb-msg.ok { color: #9ee0c0; }
+html[data-theme="dark"] body:not(.nhb-on-login) .nhb-msg.err { color: #f5b4ac; }
+html[data-theme="dark"] body:not(.nhb-on-login) select option {
+  color: #f2f6fb;
+  background: #152536;
+}
+html[data-theme="dark"] body:not(.nhb-on-login) .prix-box {
+  background: rgba(0, 0, 0, 0.28);
+  border-color: rgba(224, 192, 106, 0.28);
+  color: #f2f6fb;
+}
+html[data-theme="dark"] body:not(.nhb-on-login) .prix-box strong {
+  color: #f0d98a;
+}
+html[data-theme="dark"] body:not(.nhb-on-login) .actions-inline .nhb-btn,
+html[data-theme="dark"] body:not(.nhb-on-login) .nhb-toolbar .nhb-btn,
+html[data-theme="dark"] body:not(.nhb-on-login) .nhb-resa-actions .nhb-btn {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
 </style>
   <style>
     body{margin:0;font-family:system-ui,sans-serif;color:#0a1628;background:#e8eef5}
@@ -1172,9 +1350,7 @@ html[data-theme="light"] select option {
           <div class="nhb-msg" id="resetMsg"></div>
         </div>
         <button type="button" class="nhb-toggle-link" id="btnBackLogin" data-i18n="back_login">Voltar ao início de sessão</button>
-      </div>
-      <div class="nhb-login-footer"><a href="index.html" title="Standalone" data-i18n="hub">Hub</a></div>
-    </div>
+      </div></div>
   </div>
 
   <header class="nhb-header nhb-app-only">
@@ -1185,9 +1361,7 @@ html[data-theme="light"] select option {
     <div id="nhbChrome"></div>
     <div class="nhb-header-actions">
       <span id="who" class="nhb-meta" style="display:inline;margin:0"></span>
-      <button type="button" class="nhb-link nhb-hidden" id="btnLogout" data-i18n="logout">Terminar sessão</button>
-      <a class="nhb-link" href="index.html" title="Standalone" data-i18n="hub">Hub</a>
-    </div>
+      <button type="button" class="nhb-link nhb-hidden" id="btnLogout" data-i18n="logout">Terminar sessão</button></div>
   </header>
 
   <main class="nhb-main nhb-app-only">

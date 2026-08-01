@@ -1,19 +1,21 @@
 /**
  * ═══════════════════════════════════════════════════════════════════════════
- *  NHALABENE / AGENCIAS — CONFIGURATION
- *  Coller l’URL /exec ICI (ou dans chaque HTML via AGENCIAS_API_URL en tête).
+ *  NHALABENE / AGENCIAS — CONFIGURATION PROFESSIONNELLE v1.4.0
+ *  Priorité : AGENCIAS_API_URL dans index.html, sinon API_URL ci-dessous.
  * ═══════════════════════════════════════════════════════════════════════════
  */
 var AGENCIAS_CONFIG = {
-  /* ▼▼▼  URL API Apps Script (priorité : AGENCIAS_API_URL dans le HTML)  ▼▼▼ */
+  /* ▼▼▼  URL API Apps Script (/exec)  ▼▼▼ */
   API_URL: (typeof AGENCIAS_API_URL !== 'undefined' && AGENCIAS_API_URL)
     ? AGENCIAS_API_URL
     : 'https://script.google.com/macros/s/AKfycbym0EOCpYVyQQb0DyhxWGbgmfnCbVLhSBcw4b05qEQSG_kUnu0vJ7iiaw3fGkp-qFCv1Q/exec',
   /* ▲▲▲──────────────────────────────────────────────────────────────────▲▲▲ */
 
-  VERSION: '1.2.0',
+  VERSION: '1.4.0',
   PRODUCT: 'Nhalabene',
+  ARCHITECTURE: 'option-2-fournisseur',
   ASSETS_BASE: './assets/',
+  FETCH_TIMEOUT_MS: 45000,
   BRAND_STANDARD: {
     NOM: 'Nhalabene',
     LOGO_FILE: 'icon_carre_192.png',
@@ -56,14 +58,30 @@ function agenciasApplyBranding(brand, opts) {
 }
 
 function agenciasApi(body) {
-  return fetch(AGENCIAS_CONFIG.API_URL, {
+  var ctrl = null;
+  var timer = null;
+  var opts = {
     method: 'POST',
     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
     body: JSON.stringify(body)
-  }).then(function (r) { return r.json(); });
+  };
+  try {
+    if (typeof AbortController !== 'undefined') {
+      ctrl = new AbortController();
+      opts.signal = ctrl.signal;
+      timer = setTimeout(function () { try { ctrl.abort(); } catch (e) {} }, AGENCIAS_CONFIG.FETCH_TIMEOUT_MS || 45000);
+    }
+  } catch (e) { /* ignore */ }
+  return fetch(AGENCIAS_CONFIG.API_URL, opts).then(function (r) {
+    if (timer) clearTimeout(timer);
+    return r.json();
+  }).catch(function (err) {
+    if (timer) clearTimeout(timer);
+    throw err;
+  });
 }
 
-/** Bloc UI récupération MDP (à coller dans #view-login) — helpers partagés */
+/** Récupération MDP — helpers partagés */
 function agenciasBindRecuperationMdp(prefix) {
   prefix = prefix || '';
   var btnAsk = document.getElementById(prefix + 'btnAskReset');
@@ -73,7 +91,7 @@ function agenciasBindRecuperationMdp(prefix) {
 
   btnAsk.onclick = function () {
     msg.className = 'nhb-msg';
-    msg.textContent = 'Envoi du code…';
+    msg.textContent = (typeof t === 'function') ? t('send_code') : '…';
     agenciasApi({
       action: 'demanderRecuperationMdp',
       login: document.getElementById(prefix + 'reset-login').value.trim()
@@ -82,19 +100,20 @@ function agenciasBindRecuperationMdp(prefix) {
       msg.textContent = data.success
         ? (data.message + (data.emailMasque ? ' (' + data.emailMasque + ')' : '') +
           (data.userIdHint ? ' — login : ' + data.userIdHint : ''))
-        : (data.error || 'Échec');
+        : (data.error || ((typeof t === 'function') ? t('fail') : 'Échec'));
       if (data.userIdHint) {
-        document.getElementById(prefix + 'reset-userid').value = data.userIdHint;
+        var uid = document.getElementById(prefix + 'reset-userid');
+        if (uid) uid.value = data.userIdHint;
       }
     }).catch(function () {
       msg.className = 'nhb-msg err';
-      msg.textContent = 'API non joignable';
+      msg.textContent = (typeof t === 'function') ? t('api_error') : 'API error';
     });
   };
 
   btnConfirm.onclick = function () {
     msg.className = 'nhb-msg';
-    msg.textContent = 'Validation…';
+    msg.textContent = (typeof t === 'function') ? t('saving') : '…';
     agenciasApi({
       action: 'confirmerRecuperationMdp',
       userId: document.getElementById(prefix + 'reset-userid').value.trim(),
@@ -102,10 +121,12 @@ function agenciasBindRecuperationMdp(prefix) {
       nouveauMotDePasse: document.getElementById(prefix + 'reset-pass').value
     }).then(function (data) {
       msg.className = 'nhb-msg ' + (data.success ? 'ok' : 'err');
-      msg.textContent = data.success ? data.message : (data.error || 'Échec');
+      msg.textContent = data.success
+        ? (data.message || ((typeof t === 'function') ? t('pwd_updated') : 'OK'))
+        : (data.error || ((typeof t === 'function') ? t('fail') : 'Échec'));
     }).catch(function () {
       msg.className = 'nhb-msg err';
-      msg.textContent = 'API non joignable';
+      msg.textContent = (typeof t === 'function') ? t('api_error') : 'API error';
     });
   };
 }

@@ -1,14 +1,15 @@
-/* Nhalabene AGENCIAS SW v1.2.0 — network-first + shell offline */
-var CACHE = 'nhb-agencias-v1.2.0';
+/* Nhalabene AGENCIAS SW v1.4.0 — network-first + shell offline */
+var CACHE = 'nhb-agencias-v1.4.0';
 var SHELL = [
   './',
   './index.html',
-  './shared/nhb-theme.css',
-  './shared/i18n.js',
-  './shared/nhb-ops.js',
-  './shared/config.js',
-  './assets/icon_carre_192.svg',
-  './assets/icon_carre_512.svg'
+  './nhb-theme.css',
+  './i18n.js',
+  './nhb-ops.js',
+  './config.js',
+  './icon-192.png',
+  './icon-512.png',
+  './favicon.png'
 ];
 
 self.addEventListener('install', function (e) {
