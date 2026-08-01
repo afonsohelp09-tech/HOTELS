@@ -1,4 +1,4 @@
-/* COPIE de shared/ � �diter shared/ puis sync */
+/* COPIE de shared/ — editer shared/ puis sync */
 /**
  * ═══════════════════════════════════════════════════════════════════════════
  *  NHALABENE / AGENCIAS — CONFIGURATION PROFESSIONNELLE v1.5.1
@@ -12,7 +12,7 @@ var AGENCIAS_CONFIG = {
     : 'https://script.google.com/macros/s/AKfycbym0EOCpYVyQQb0DyhxWGbgmfnCbVLhSBcw4b05qEQSG_kUnu0vJ7iiaw3fGkp-qFCv1Q/exec',
   /* ▲▲▲──────────────────────────────────────────────────────────────────▲▲▲ */
 
-  VERSION: '1.5.1',
+  VERSION: '1.5.2',
   PRODUCT: 'Nhalabene',
   ARCHITECTURE: 'option-2-fournisseur',
   ASSETS_BASE: './assets/',

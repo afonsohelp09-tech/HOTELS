@@ -1,4 +1,4 @@
-/* COPIE de shared/ � �diter shared/ puis sync */
+/* COPIE de shared/ — editer shared/ puis sync */
 /**
  * Nhalabene AGENCIAS — i18n PT / EN / FR / ES
  * Usage: data-i18n="key" | data-i18n-placeholder="key" | data-i18n-title="key"
@@ -1199,6 +1199,33 @@ function nhbModeLabel(mode) {
   return t('mode_standard');
 }
 
+/** Petites icônes navigation (SVG stroke, currentColor) */
+function nhbNavIconSvg(name) {
+  var p = {
+    overview: '<circle cx="12" cy="12" r="9"/><path d="M8 12h8M12 8v8"/>',
+    agences: '<path d="M3 21h18"/><path d="M5 21V8l7-4 7 4v13"/><path d="M9 21v-6h6v6"/>',
+    resas: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v4M16 3v4"/>',
+    creer: '<circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/>',
+    nouvelle: '<circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/>',
+    hotels: '<path d="M4 21V7l8-4 8 4v14"/><path d="M9 21v-6h6v6M9 10h.01M15 10h.01M9 14h.01M15 14h.01"/>',
+    prix: '<path d="M12 3v18M8 8h5a3 3 0 010 6H8m0 0h6a3 3 0 010 6H8"/>',
+    chauffeurs: '<path d="M5 17h14v-5H5v5z"/><path d="M7 12l2-5h6l2 5"/><circle cx="8" cy="17" r="1.5"/><circle cx="16" cy="17" r="1.5"/>',
+    equipe: '<circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 19c0-3 3-5 6-5s6 2 6 5"/><path d="M14 19c0-2 2-3.5 4.5-3.5S22 17 22 19"/>',
+    historique: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+    mdp: '<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/>',
+    parametres: '<circle cx="12" cy="12" r="3"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>'
+  };
+  var body = p[name] || '<circle cx="12" cy="12" r="3"/>';
+  return '<svg class="nhb-nav-svg" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + body + '</svg>';
+}
+
+function nhbNavButtonHtml(iconKey, label) {
+  var ico = iconKey
+    ? '<span class="nhb-nav-ico" aria-hidden="true">' + nhbNavIconSvg(iconKey) + '</span>'
+    : '';
+  return ico + '<span class="nhb-nav-lbl">' + label + '</span>';
+}
+
 function nhbBindBottomNav(tabsSel, bottomSel) {
   tabsSel = tabsSel || '#mainTabs';
   bottomSel = bottomSel || '#nhbBottomNav';
@@ -1206,16 +1233,22 @@ function nhbBindBottomNav(tabsSel, bottomSel) {
   var bottom = document.querySelector(bottomSel);
   if (!tabs || !bottom) return;
   document.body.classList.add('has-bottom-nav');
-  function sync() {
+  var syncTimer = null;
+  var obs = null;
+  function syncNow() {
     bottom.innerHTML = '';
     tabs.querySelectorAll('button').forEach(function (b) {
       if (b.classList.contains('nhb-hidden') || b.style.display === 'none') return;
       var nb = document.createElement('button');
       nb.type = 'button';
       nb.setAttribute('data-tab', b.getAttribute('data-tab'));
+      var iconKey = b.getAttribute('data-icon') || b.getAttribute('data-tab') || '';
+      if (iconKey) nb.setAttribute('data-icon', iconKey);
       nb.className = b.classList.contains('active') ? 'active' : '';
-      var label = b.getAttribute('data-i18n') ? t(b.getAttribute('data-i18n')) : b.textContent;
-      nb.innerHTML = '<span class="ico">•</span><span>' + label + '</span>';
+      var label = b.getAttribute('data-i18n') ? t(b.getAttribute('data-i18n')) : (
+        (b.querySelector('.nhb-nav-lbl') && b.querySelector('.nhb-nav-lbl').textContent) || b.textContent
+      );
+      nb.innerHTML = nhbNavButtonHtml(iconKey, label);
       nb.onclick = function () {
         b.click();
         document.body.classList.remove('nhb-nav-open');
@@ -1224,9 +1257,19 @@ function nhbBindBottomNav(tabsSel, bottomSel) {
       bottom.appendChild(nb);
     });
   }
-  sync();
+  function sync() {
+    if (syncTimer) clearTimeout(syncTimer);
+    syncTimer = setTimeout(function () {
+      syncTimer = null;
+      if (obs) obs.disconnect();
+      try { syncNow(); } finally {
+        if (obs) obs.observe(tabs, { attributes: true, subtree: true, attributeFilter: ['class', 'style'] });
+      }
+    }, 40);
+  }
+  syncNow();
   document.addEventListener('nhb:lang', sync);
-  var obs = new MutationObserver(sync);
+  obs = new MutationObserver(sync);
   obs.observe(tabs, { attributes: true, subtree: true, attributeFilter: ['class', 'style'] });
   return sync;
 }
@@ -1235,7 +1278,14 @@ function nhbApplyI18n(root) {
   root = root || document;
   root.querySelectorAll('[data-i18n]').forEach(function (el) {
     var k = el.getAttribute('data-i18n');
-    if (k) el.textContent = t(k);
+    if (!k) return;
+    var label = t(k);
+    var iconKey = el.getAttribute('data-icon');
+    if (iconKey && (el.closest('.nhb-tabs') || el.closest('.nhb-bottom-nav'))) {
+      el.innerHTML = nhbNavButtonHtml(iconKey, label);
+    } else {
+      el.textContent = label;
+    }
   });
   root.querySelectorAll('[data-i18n-html]').forEach(function (el) {
     var k = el.getAttribute('data-i18n-html');

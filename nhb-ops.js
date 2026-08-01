@@ -1,3 +1,4 @@
+/* COPIE de shared/ — editer shared/ puis sync */
 /** Nhalabene ops helpers — toast, WA, calendar, excel, empty state */
 function nhbToast(msg, type) {
   type = type || 'default'; // default|ok|err|warn

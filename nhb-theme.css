@@ -1,4 +1,3 @@
-/* COPIE de shared/ � �diter shared/ puis sync */
 /* Nhalabene AGENCIAS — thème foncé (défaut) + clair + mobile */
 :root,
 html[data-theme="dark"] {
@@ -286,12 +285,26 @@ html[data-theme="light"] .nhb-btn.danger {
   min-height: 40px;
   cursor: pointer;
   font-size: 0.82rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.nhb-tabs button .nhb-nav-ico {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  opacity: 0.9;
+}
+.nhb-tabs button .nhb-nav-svg {
+  display: block;
 }
 .nhb-tabs button.active {
   border-color: var(--nhb-gold);
   color: var(--nhb-gold);
   background: rgba(201, 168, 76, 0.1);
 }
+.nhb-tabs button.active .nhb-nav-ico { opacity: 1; }
 
 .nhb-table { width: 100%; border-collapse: collapse; font-size: 0.84rem; }
 .nhb-table th, .nhb-table td {
@@ -385,7 +398,21 @@ html[data-theme="light"] .nhb-stat { background: var(--nhb-input-bg); }
   color: var(--nhb-gold);
   background: rgba(201, 168, 76, 0.12);
 }
-.nhb-bottom-nav .ico { font-size: 1.1rem; line-height: 1; }
+.nhb-bottom-nav .nhb-nav-ico,
+.nhb-bottom-nav .ico {
+  font-size: 1.05rem;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.nhb-bottom-nav .nhb-nav-svg { width: 18px; height: 18px; }
+.nhb-bottom-nav .nhb-nav-lbl {
+  max-width: 4.8rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 
 @media (max-width: 700px) {
   .nhb-row2, .nhb-row3 { grid-template-columns: 1fr; }
@@ -472,6 +499,8 @@ body:not(.nhb-on-login) .nhb-login-screen { display: none !important; }
   align-items: center;
   gap: 0.5rem;
   flex-wrap: wrap;
+  /* Ne pas bloquer les clics sur le formulaire en dessous */
+  pointer-events: none;
 }
 .nhb-login-top #nhbLoginChrome {
   display: flex;
@@ -479,6 +508,7 @@ body:not(.nhb-on-login) .nhb-login-screen { display: none !important; }
   gap: 0.45rem;
   flex-wrap: wrap;
   justify-content: flex-end;
+  pointer-events: auto;
 }
 
 .nhb-login-box {
@@ -488,6 +518,8 @@ body:not(.nhb-on-login) .nhb-login-screen { display: none !important; }
   color: #0d2137;
   border-radius: 22px;
   padding: 2rem 1.65rem 1.5rem;
+  /* Laisse de la place sous la barre langue/thème (évite chevauchement mobile) */
+  margin-top: 3.25rem;
   box-shadow: 0 24px 64px rgba(0, 0, 0, 0.35);
   position: relative;
   z-index: 1;
@@ -1124,13 +1156,21 @@ html[data-theme="dark"] body:not(.nhb-on-login) ::placeholder {
   color: #8fa0b5;
   opacity: 1;
 }
+html[data-theme="dark"] body:not(.nhb-on-login) .nhb-tabs {
+  gap: 0.4rem;
+}
 html[data-theme="dark"] body:not(.nhb-on-login) .nhb-tabs button {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: rgba(232, 238, 246, 0.28);
-  color: #c5d0e0;
+  background: #152536;
+  border-color: rgba(232, 238, 246, 0.32);
+  color: #d5deea;
+}
+html[data-theme="dark"] body:not(.nhb-on-login) .nhb-tabs button:hover {
+  background: #1c2d40;
+  color: #f0d98a;
+  border-color: rgba(224, 192, 106, 0.45);
 }
 html[data-theme="dark"] body:not(.nhb-on-login) .nhb-tabs button.active {
-  background: rgba(224, 192, 106, 0.18);
+  background: rgba(224, 192, 106, 0.2);
   border-color: #e0c06a;
   color: #f0d98a;
   font-weight: 700;
