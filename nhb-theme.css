@@ -1,3 +1,4 @@
+/* COPIE de shared/ � �diter shared/ puis sync */
 /* Nhalabene AGENCIAS — thème foncé (défaut) + clair + mobile */
 :root,
 html[data-theme="dark"] {
@@ -1235,4 +1236,88 @@ html[data-theme="dark"] body:not(.nhb-on-login) .actions-inline .nhb-btn,
 html[data-theme="dark"] body:not(.nhb-on-login) .nhb-toolbar .nhb-btn,
 html[data-theme="dark"] body:not(.nhb-on-login) .nhb-resa-actions .nhb-btn {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+/* ── Offline / densités / pager / print / a11y ── */
+.nhb-offline-bar {
+  position: sticky;
+  top: 0;
+  z-index: 9999;
+  background: #8a3b2a;
+  color: #fff8f0;
+  text-align: center;
+  padding: 0.55rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+html[data-density="compact"] {
+  --touch: 40px;
+}
+html[data-density="compact"] .nhb-card { padding: 0.85rem; }
+html[data-density="compact"] .nhb-table td,
+html[data-density="compact"] .nhb-table th { padding: 0.35rem 0.5rem; font-size: 0.88rem; }
+
+.nhb-pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin: 0.85rem 0 0.25rem;
+  flex-wrap: wrap;
+}
+.nhb-pager-info { font-size: 0.88rem; opacity: 0.85; }
+
+.nhb-msg[role="status"],
+.nhb-toast-host { /* polite live regions */ }
+
+/* Badges statut — contraste WCAG AA (clair) */
+.nhb-badge.pendente { background: #f3e2b8; color: #5c3d00; }
+.nhb-badge.confirmado { background: #c8e6d4; color: #0d3d28; }
+.nhb-badge.realizado { background: #c9d8ef; color: #123056; }
+.nhb-badge.cancelado { background: #f0c9c3; color: #5c1a14; }
+
+.nhb-unsupported {
+  max-width: 32rem;
+  margin: 4rem auto;
+  padding: 2rem;
+  text-align: center;
+  font-family: Georgia, serif;
+}
+
+@media print {
+  .nhb-header,
+  .nhb-tabs,
+  .nhb-bottom-nav,
+  .nhb-toolbar,
+  .nhb-pipeline,
+  .nhb-chip-row,
+  .nhb-filter-row,
+  .nhb-pager,
+  .nhb-offline-bar,
+  .nhb-toast-host,
+  #nhbChrome,
+  .nhb-header-actions,
+  #btnLogout,
+  .nhb-link,
+  button.nhb-btn,
+  button.nhb-btn-primary,
+  .nhb-resa-actions,
+  .actions-inline,
+  .nhb-login-wrap,
+  #nhbBottomNav {
+    display: none !important;
+  }
+  body {
+    background: #fff !important;
+    color: #111 !important;
+  }
+  .nhb-card, .nhb-table-wrap, .nhb-sheet-panel {
+    box-shadow: none !important;
+    border: none !important;
+  }
+  .nhb-hidden { display: block !important; }
+  .nhb-app-only { display: block !important; }
+  .nhb-desk-only { display: block !important; }
+  .nhb-mobile-only { display: none !important; }
+  a[href]::after { content: ''; }
 }
