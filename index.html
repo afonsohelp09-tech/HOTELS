@@ -700,19 +700,16 @@
         peutCreer: true,
         peutAnnuler: true,
         annulerMinHeures: 24,
-        editMaxHeures: 0,
+        editMinHeures: 24,
+        editMaxHeures: 24,
         editChamps: ['client', 'contact', 'trajet', 'datetime', 'pax', 'vol', 'chambre', 'commentaires']
       };
     }
 
-    function hotelCanCancelResa(r) {
-      var pol = hotelPolicy();
-      if (!pol.peutAnnuler) return false;
-      var st = String(r.statut || '').toLowerCase();
-      if (st === 'cancelado' || st === 'realizado') return false;
+    function hoursBeforeTransfer(r) {
       var d = String(r.dateTransfer || '').slice(0, 10);
       var h = String(r.heureTransfer || '00:00').slice(0, 5);
-      if (!d || !/^\d{4}-\d{2}-\d{2}$/.test(d)) return false;
+      if (!d || !/^\d{4}-\d{2}-\d{2}$/.test(d)) return null;
       var hm = h.split(':');
       var when = new Date(
         parseInt(d.slice(0, 4), 10),
@@ -722,9 +719,29 @@
         parseInt(hm[1] || 0, 10),
         0
       );
-      if (isNaN(when.getTime())) return false;
-      var hoursLeft = (when.getTime() - Date.now()) / 3600000;
+      if (isNaN(when.getTime())) return null;
+      return (when.getTime() - Date.now()) / 3600000;
+    }
+
+    function hotelCanCancelResa(r) {
+      var pol = hotelPolicy();
+      if (!pol.peutAnnuler) return false;
+      var st = String(r.statut || '').toLowerCase();
+      if (st === 'cancelado' || st === 'realizado') return false;
+      var hoursLeft = hoursBeforeTransfer(r);
+      if (hoursLeft == null) return false;
       return hoursLeft >= (pol.annulerMinHeures != null ? pol.annulerMinHeures : 24);
+    }
+
+    function hotelCanEditResa(r) {
+      var pol = hotelPolicy();
+      var st = String(r.statut || '').toLowerCase();
+      if (st !== 'pendente' && st !== 'confirmado') return false;
+      var hoursLeft = hoursBeforeTransfer(r);
+      if (hoursLeft == null) return false;
+      var minH = pol.editMinHeures != null ? pol.editMinHeures
+        : (pol.editMaxHeures != null ? pol.editMaxHeures : 24);
+      return hoursLeft >= minH;
     }
 
     function applyHotelCreateGate() {
@@ -797,6 +814,9 @@
       var brand = brandName();
       var cls = inline ? 'nhb-btn ghost' : 'nhb-btn ghost';
       var html = '<button type="button" class="' + cls + '" data-detail="' + esc(r.id) + '">' + esc(t('detail')) + '</button>';
+      if (hotelCanEditResa(r)) {
+        html += '<button type="button" class="' + cls + '" data-edit="' + esc(r.id) + '">' + esc(t('edit')) + '</button>';
+      }
       if (hotelCanCancelResa(r)) {
         html += '<button type="button" class="' + cls + '" data-cancel="' + esc(r.id) + '">' + esc(t('cancel_own')) + '</button>';
       }
@@ -830,6 +850,12 @@
       root.querySelectorAll('[data-detail]').forEach(function (btn) {
         btn.onclick = function () {
           showDetail(resasById[btn.getAttribute('data-detail')], btn);
+        };
+      });
+      root.querySelectorAll('[data-edit]').forEach(function (btn) {
+        btn.onclick = function () {
+          var id = btn.getAttribute('data-edit');
+          showDetail(resasById[id], btn, true);
         };
       });
       root.querySelectorAll('[data-cancel]').forEach(function (btn) {
@@ -914,7 +940,7 @@
       document.getElementById('detailPanel').innerHTML = '';
     }
 
-    function showDetail(r, triggerEl) {
+    function showDetail(r, triggerEl, forceEdit) {
       if (!r) return;
       if (detailReleaseFocus) {
         detailReleaseFocus();
@@ -924,27 +950,66 @@
       detailReservation = r;
       var panel = document.getElementById('detailPanel');
       var sheet = document.getElementById('detailSheet');
-      var isPendente = String(r.statut || '').toLowerCase() === 'pendente';
+      var canEdit = hotelCanEditResa(r);
+      var editing = !!(forceEdit && canEdit);
+      var pol = hotelPolicy();
+      var champs = {};
+      (pol.editChamps || []).forEach(function (c) { champs[c] = true; });
+
+      function field(group, id, label, val, type) {
+        if (editing && champs[group]) {
+          return '<div><label class="nhb-label" for="' + id + '">' + esc(label) + '</label>' +
+            '<input class="nhb-input" id="' + id + '" type="' + (type || 'text') + '" value="' + esc(val || '') + '" /></div>';
+        }
+        return '<div><label class="nhb-label">' + esc(label) + '</label><p>' + esc(val || '—') + '</p></div>';
+      }
+
+      var dateVal = String(r.dateTransfer || '').slice(0, 10);
+      var heureVal = String(r.heureTransfer || '').slice(0, 5);
       panel.innerHTML =
         '<h2>' + esc(t('detail')) + ' ' + esc(r.id) + '</h2>' +
-        '<p class="nhb-meta">' + badge(r.statut) + '</p>' +
+        '<p class="nhb-meta">' + badge(r.statut) +
+          (editing ? ' · ' + esc(t('edit')) : '') + '</p>' +
         '<div class="nhb-row2">' +
-          '<div><label class="nhb-label">' + esc(t('th_client')) + '</label><p>' + esc(r.clientPrenom + ' ' + r.clientNom) + '</p></div>' +
-          '<div><label class="nhb-label">' + esc(t('th_contact')) + '</label><p>' + esc(r.telephone || '—') + ' · ' + esc(r.emailClient || '—') + '</p></div>' +
+          field('client', 'ed-nom', t('client_name'), r.clientNom) +
+          field('client', 'ed-prenom', t('client_first'), r.clientPrenom) +
         '</div>' +
         '<div class="nhb-row2">' +
-          '<div><label class="nhb-label">' + esc(t('th_trip')) + '</label><p>' + esc(r.origine) + ' → ' + esc(r.destination) + '</p></div>' +
-          '<div><label class="nhb-label">' + esc(t('date')) + ' / ' + esc(t('time')) + '</label><p>' + esc(nhbFmtDateTime(r)) + '</p></div>' +
+          field('contact', 'ed-tel', t('phone'), r.telephone) +
+          field('contact', 'ed-email', t('email'), r.emailClient, 'email') +
         '</div>' +
         '<div class="nhb-row2">' +
-          '<div><label class="nhb-label">' + esc(t('th_pax')) + ' / ' + esc(t('th_bags')) + '</label><p>' + esc(r.personnes) + ' / ' + esc(r.malas) + '</p></div>' +
-          '<div><label class="nhb-label">' + esc(t('flight')) + ' / ' + esc(t('room')) + '</label><p>' + esc(r.numVol || '—') + ' / ' + esc(r.numChambre || '—') + '</p></div>' +
+          field('trajet', 'ed-origine', t('origin'), r.origine) +
+          field('trajet', 'ed-destination', t('destination'), r.destination) +
         '</div>' +
-        (r.commentaires ? '<p class="nhb-meta">' + esc(r.commentaires) + '</p>' : '') +
+        '<div class="nhb-row2">' +
+          field('datetime', 'ed-date', t('date'), dateVal, 'date') +
+          field('datetime', 'ed-heure', t('time'), heureVal, 'time') +
+        '</div>' +
+        '<div class="nhb-row2">' +
+          field('pax', 'ed-personnes', t('passengers'), r.personnes, 'number') +
+          field('pax', 'ed-malas', t('bags'), r.malas, 'number') +
+        '</div>' +
+        '<div class="nhb-row2">' +
+          field('vol', 'ed-vol', t('flight'), r.numVol) +
+          field('chambre', 'ed-chambre', t('room'), r.numChambre) +
+        '</div>' +
+        (editing && champs.commentaires
+          ? '<label class="nhb-label" for="ed-commentaires">' + esc(t('notes')) + '</label>' +
+            '<textarea class="nhb-textarea" id="ed-commentaires" rows="2">' + esc(r.commentaires || '') + '</textarea>'
+          : (r.commentaires ? '<p class="nhb-meta">' + esc(r.commentaires) + '</p>' : '')) +
         '<p><strong>' + esc(t('th_price')) + ':</strong> ' + ((r.prixFinal != null || r.prixAuto != null) ? esc(nhbFormatMoney(r.prixFinal != null ? r.prixFinal : r.prixAuto, 'hotel')) : '—') + '</p>' +
-        '<div class="nhb-resa-actions" style="margin-top:1rem">' + resaActionsHtml(r) + nhbWaOpsLinksHtml('hotel', nhbResaWhatsAppText(r, brandName())) +
-          '<button type="button" class="nhb-btn ghost" id="btnPrintDetail">' + esc(t('print_voucher')) + '</button></div>' +
-        '<button type="button" class="nhb-btn ghost block" id="btnCloseDetail" style="margin-top:0.75rem" aria-label="' + esc(t('sheet_close')) + '">' + esc(t('sheet_close')) + '</button>';
+        '<div class="nhb-resa-actions" style="margin-top:1rem">' +
+          (editing
+            ? '<button type="button" class="nhb-btn" id="btnSaveEdit">' + esc(t('save')) + '</button>' +
+              '<button type="button" class="nhb-btn ghost" id="btnCancelEdit">' + esc(t('sheet_close')) + '</button>'
+            : resaActionsHtml(r) + nhbWaOpsLinksHtml('hotel', nhbResaWhatsAppText(r, brandName())) +
+              '<button type="button" class="nhb-btn ghost" id="btnPrintDetail">' + esc(t('print_voucher')) + '</button>') +
+        '</div>' +
+        '<div class="nhb-msg" id="editResaMsg"></div>' +
+        (!editing
+          ? '<button type="button" class="nhb-btn ghost block" id="btnCloseDetail" style="margin-top:0.75rem" aria-label="' + esc(t('sheet_close')) + '">' + esc(t('sheet_close')) + '</button>'
+          : '');
       sheet.classList.remove('nhb-hidden');
       sheet.setAttribute('aria-hidden', 'false');
       panel._nhbClose = closeDetail;
@@ -952,10 +1017,58 @@
       sheet.onclick = function (e) {
         if (e.target === sheet) closeDetail();
       };
-      document.getElementById('btnCloseDetail').onclick = closeDetail;
+      var btnClose = document.getElementById('btnCloseDetail');
+      if (btnClose) btnClose.onclick = closeDetail;
       var pb = document.getElementById('btnPrintDetail');
       if (pb) pb.onclick = function () { window.print(); };
-      bindResaActions(panel);
+      var btnCancelEdit = document.getElementById('btnCancelEdit');
+      if (btnCancelEdit) btnCancelEdit.onclick = function () { showDetail(r, triggerEl, false); };
+      var btnSaveEdit = document.getElementById('btnSaveEdit');
+      if (btnSaveEdit) {
+        btnSaveEdit.onclick = function () {
+          if (!hotelCanEditResa(r)) {
+            nhbToast(t('edit_hotel_too_late') || t('cancel_hotel_too_late'), 'err');
+            return;
+          }
+          var msg = document.getElementById('editResaMsg');
+          msg.className = 'nhb-msg';
+          msg.textContent = t('saving');
+          var payload = { action: 'editarReservation', token: state.token, id: r.id };
+          function take(id, key) {
+            var el = document.getElementById(id);
+            if (el) payload[key] = el.value;
+          }
+          take('ed-nom', 'clientNom');
+          take('ed-prenom', 'clientPrenom');
+          take('ed-tel', 'telephone');
+          take('ed-email', 'emailClient');
+          take('ed-origine', 'origine');
+          take('ed-destination', 'destination');
+          take('ed-date', 'dateTransfer');
+          take('ed-heure', 'heureTransfer');
+          take('ed-personnes', 'personnes');
+          take('ed-malas', 'malas');
+          take('ed-vol', 'numVol');
+          take('ed-chambre', 'numChambre');
+          take('ed-commentaires', 'commentaires');
+          agenciasApi(payload).then(function (data) {
+            msg.className = 'nhb-msg ' + (data.success ? 'ok' : 'err');
+            msg.textContent = data.success ? t('saved') : (data.error || t('fail'));
+            if (data.success) {
+              nhbToast(t('saved'), 'ok');
+              closeDetail();
+              refreshResas();
+            } else {
+              nhbToast(data.error || t('fail'), 'err');
+            }
+          }).catch(function () {
+            msg.className = 'nhb-msg err';
+            msg.textContent = t('api_error');
+            nhbToast(t('api_error'), 'err');
+          });
+        };
+      }
+      if (!editing) bindResaActions(panel);
     }
 
     function cancelResa(id) {

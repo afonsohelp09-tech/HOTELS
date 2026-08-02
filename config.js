@@ -7,7 +7,7 @@ var AGENCIAS_CONFIG = {
     ? AGENCIAS_API_URL
     : 'https://script.google.com/macros/s/AKfycbym0EOCpYVyQQb0DyhxWGbgmfnCbVLhSBcw4b05qEQSG_kUnu0vJ7iiaw3fGkp-qFCv1Q/exec',
 
-  VERSION: '1.6.1',
+  VERSION: '1.6.2',
   PRODUCT: 'Nhalabene',
   ARCHITECTURE: 'option-2-fournisseur',
   ASSETS_BASE: './assets/',
