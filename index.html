@@ -127,8 +127,10 @@
   <main class="nhb-main nhb-app-only">
     <section id="view-app" class="nhb-hidden">
       <div class="nhb-tabs" id="mainTabs">
-        <button type="button" class="active" data-tab="resas" data-icon="resas" data-i18n="tab_mine">As minhas reservas</button>
-        <button type="button" data-tab="nouvelle" data-icon="nouvelle" data-i18n="tab_new">Nova reserva</button>
+        <button type="button" class="active" data-tab="resas" data-icon="resas" data-nav-tier="primary" data-i18n="tab_mine">As minhas reservas</button>
+        <button type="button" data-tab="proximas" data-icon="upcoming" data-nav-tier="primary" data-i18n="upcoming">Próximas</button>
+        <button type="button" data-tab="nouvelle" data-icon="nouvelle" data-nav-tier="primary" data-i18n="tab_new">Nova reserva</button>
+        <button type="button" data-tab="historique" data-icon="historique" data-nav-tier="primary" data-i18n="tab_historique">Histórico</button>
         <button type="button" data-tab="mdp" data-icon="mdp" data-i18n="tab_password">Palavra-passe</button>
         <button type="button" data-tab="parametres" data-icon="parametres" data-i18n="tab_settings">Parâmetros</button>
       </div>
@@ -192,6 +194,13 @@
         </div>
         <div id="resasCards" class="nhb-resa-list nhb-mobile-only"></div>
         <div id="resasPager" class="nhb-pager"></div>
+      </div>
+
+      <div id="tab-proximas" class="nhb-card nhb-hidden">
+        <h2 data-i18n="upcoming">Próximas transferências</h2>
+        <p class="nhb-meta" data-i18n="upcoming_hint">Reservas futuras (não canceladas / realizadas).</p>
+        <div id="proximasMsg" class="nhb-msg" aria-live="polite"></div>
+        <div id="proximasList" class="nhb-resa-list"></div>
       </div>
 
       <div id="tab-nouvelle" class="nhb-card nhb-hidden">
@@ -277,6 +286,45 @@
         <div class="nhb-msg" id="createMsg"></div>
       </div>
 
+      <div id="tab-historique" class="nhb-card nhb-hidden">
+        <h2 data-i18n="tab_historique">Histórico</h2>
+        <p class="nhb-meta" data-i18n="historique_hint">Últimas ações registadas no sistema.</p>
+        <div class="nhb-row2">
+          <div>
+            <label class="nhb-label" for="hist-de" data-i18n="hist_from">De</label>
+            <input class="nhb-input" id="hist-de" type="date" />
+          </div>
+          <div>
+            <label class="nhb-label" for="hist-a" data-i18n="hist_to">Até</label>
+            <input class="nhb-input" id="hist-a" type="date" />
+          </div>
+        </div>
+        <div class="nhb-row2">
+          <div>
+            <label class="nhb-label" for="hist-q" data-i18n="search">Pesquisar</label>
+            <input class="nhb-input" id="hist-q" data-i18n-placeholder="hist_search_ph" placeholder="…" />
+          </div>
+          <div style="display:flex;align-items:flex-end">
+            <button type="button" class="nhb-btn" id="btnHistApply" data-i18n="hist_apply">Filtrar</button>
+          </div>
+        </div>
+        <div id="historiqueMsg" class="nhb-msg" aria-live="polite"></div>
+        <div class="nhb-table-wrap">
+          <table class="nhb-table">
+            <thead>
+              <tr>
+                <th data-i18n="th_date">Data</th>
+                <th data-i18n="th_action">Ação</th>
+                <th data-i18n="th_user">Utilizador</th>
+                <th data-i18n="th_details">Detalhes</th>
+              </tr>
+            </thead>
+            <tbody id="historiqueBody"></tbody>
+          </table>
+        </div>
+        <div id="historiquePager" class="nhb-pager"></div>
+      </div>
+
       <div id="tab-mdp" class="nhb-card nhb-hidden">
         <h2 data-i18n="change_pwd">Alterar a minha palavra-passe</h2>
         <label class="nhb-label" data-i18n="old_password">Palavra-passe atual</label>
@@ -343,7 +391,10 @@
       userId: sessionStorage.getItem('agencias_hotel_userId') || '',
       hotelId: sessionStorage.getItem('agencias_hotel_hotelId') || '',
       agencyId: sessionStorage.getItem('agencias_hotel_agencyId') || '',
-      nom: sessionStorage.getItem('agencias_hotel_nom') || ''
+      nom: sessionStorage.getItem('agencias_hotel_nom') || '',
+      hotelPolicy: (function () {
+        try { return JSON.parse(sessionStorage.getItem('agencias_hotel_policy') || 'null'); } catch (e) { return null; }
+      })()
     };
     var prixTimer = null;
     var lastPrixAuto = null;
@@ -408,16 +459,52 @@
       }).catch(function () {});
     }
 
-    function showTab(name) {
-      document.querySelectorAll('#mainTabs button').forEach(function (b) {
-        b.classList.toggle('active', b.getAttribute('data-tab') === name);
+    var histPage = 1;
+    function refreshHistorique() {
+      var msg = document.getElementById('historiqueMsg');
+      var tb = document.getElementById('historiqueBody');
+      if (!msg || !tb) return;
+      msg.className = 'nhb-msg';
+      msg.textContent = t('loading');
+      agenciasApi({
+        action: 'listerHistorique',
+        token: state.token,
+        limit: 200,
+        page: histPage,
+        pageSize: 25,
+        dateDe: (document.getElementById('hist-de') || {}).value || '',
+        dateA: (document.getElementById('hist-a') || {}).value || '',
+        q: (document.getElementById('hist-q') || {}).value || ''
+      }).then(function (data) {
+        if (!data.success) {
+          msg.className = 'nhb-msg err';
+          msg.textContent = data.error || t('error');
+          tb.innerHTML = '<tr><td colspan="4">' + nhbEmptyHtml(t('empty_historique'), t('empty_historique_hint')) + '</td></tr>';
+          return;
+        }
+        msg.textContent = '';
+        var rows = data.historique || data.rows || data.items || [];
+        tb.innerHTML = rows.map(function (row) {
+          return '<tr>' +
+            '<td>' + esc(row.date || row.timestamp || row.createdAt || '—') + '</td>' +
+            '<td>' + esc(row.action || row.type || '—') + '</td>' +
+            '<td>' + esc(row.userId || row.user || row.auteur || '—') + '</td>' +
+            '<td>' + esc(row.details || row.detail || row.message || row.ref || '—') + '</td>' +
+            '</tr>';
+        }).join('') || '<tr><td colspan="4">' + nhbEmptyHtml(t('empty_historique'), t('empty_historique_hint')) + '</td></tr>';
+        var pg = {
+          page: data.page || histPage,
+          pageSize: data.pageSize || 25,
+          total: data.total != null ? data.total : rows.length,
+          totalPages: data.totalPages || 1
+        };
+        histPage = pg.page;
+        nhbRenderPager('historiquePager', pg, function (p) { histPage = p; refreshHistorique(); });
+      }).catch(function () {
+        msg.className = 'nhb-msg err';
+        msg.textContent = t('api_error');
+        tb.innerHTML = '<tr><td colspan="4">—</td></tr>';
       });
-      ['resas', 'nouvelle', 'mdp', 'parametres'].forEach(function (tabId) {
-        document.getElementById('tab-' + tabId).classList.toggle('nhb-hidden', tabId !== name);
-      });
-      if (name === 'resas') refreshResas();
-      if (name === 'nouvelle') loadPricePoints();
-      if (name === 'parametres') loadPrefsForm();
     }
 
     function loadPrefsForm() {
@@ -443,6 +530,7 @@
           .then(function (d) { if (d.success) applyBrand(d.branding); });
       }
       loadPricePoints(true);
+      applyHotelCreateGate();
       showTab('resas');
     }
 
@@ -465,14 +553,19 @@
         state.hotelId = data.hotelId || data.userId;
         state.agencyId = data.agencyId || '';
         state.nom = data.nom || '';
+        state.hotelPolicy = data.hotelPolicy || (data.hotel && data.hotel.policy) || null;
         sessionStorage.setItem('agencias_hotel_token', state.token);
         sessionStorage.setItem('agencias_hotel_role', state.role);
         sessionStorage.setItem('agencias_hotel_userId', state.userId);
         sessionStorage.setItem('agencias_hotel_hotelId', state.hotelId);
         sessionStorage.setItem('agencias_hotel_agencyId', state.agencyId);
         sessionStorage.setItem('agencias_hotel_nom', state.nom);
+        try {
+          sessionStorage.setItem('agencias_hotel_policy', JSON.stringify(state.hotelPolicy || {}));
+        } catch (e) { /* ignore */ }
         pricePointsLoaded = false;
         showApp(data.branding);
+        applyHotelCreateGate();
       }
     });
 
@@ -535,13 +628,91 @@
       return {};
     }
 
+    function hotelPolicy() {
+      return state.hotelPolicy || {
+        peutCreer: true,
+        peutAnnuler: true,
+        annulerMinHeures: 24,
+        editMaxHeures: 0,
+        editChamps: ['client', 'contact', 'trajet', 'datetime', 'pax', 'vol', 'chambre', 'commentaires']
+      };
+    }
+
+    function hotelCanCancelResa(r) {
+      var pol = hotelPolicy();
+      if (!pol.peutAnnuler) return false;
+      var st = String(r.statut || '').toLowerCase();
+      if (st === 'cancelado' || st === 'realizado') return false;
+      var d = String(r.dateTransfer || '').slice(0, 10);
+      var h = String(r.heureTransfer || '00:00').slice(0, 5);
+      if (!d || !/^\d{4}-\d{2}-\d{2}$/.test(d)) return false;
+      var hm = h.split(':');
+      var when = new Date(
+        parseInt(d.slice(0, 4), 10),
+        parseInt(d.slice(5, 7), 10) - 1,
+        parseInt(d.slice(8, 10), 10),
+        parseInt(hm[0] || 0, 10),
+        parseInt(hm[1] || 0, 10),
+        0
+      );
+      if (isNaN(when.getTime())) return false;
+      var hoursLeft = (when.getTime() - Date.now()) / 3600000;
+      return hoursLeft >= (pol.annulerMinHeures != null ? pol.annulerMinHeures : 24);
+    }
+
+    function applyHotelCreateGate() {
+      var can = hotelPolicy().peutCreer !== false;
+      var btnNew = document.querySelector('#mainTabs button[data-tab="nouvelle"]');
+      var tab = document.getElementById('tab-nouvelle');
+      if (btnNew) btnNew.classList.toggle('nhb-hidden', !can);
+      if (!can && tab && !tab.classList.contains('nhb-hidden')) showTab('resas');
+      if (typeof nhbBindBottomNav === 'function') {
+        try { nhbBindBottomNav('#mainTabs', '#nhbBottomNav'); } catch (e) { /* ignore */ }
+      }
+    }
+
     function filterUpcoming(list) {
       var today = nhbTodayISO();
-      return list.filter(function (r) {
+      return (list || []).filter(function (r) {
         var st = String(r.statut || '').toLowerCase();
         if (st === 'cancelado' || st === 'realizado') return false;
-        return !r.dateTransfer || r.dateTransfer >= today;
+        var d = String(r.dateTransfer || '').slice(0, 10);
+        return !d || d >= today;
+      }).sort(function (a, b) {
+        var da = String(a.dateTransfer || '') + ' ' + String(a.heureTransfer || '');
+        var db = String(b.dateTransfer || '') + ' ' + String(b.heureTransfer || '');
+        return da < db ? -1 : da > db ? 1 : 0;
       });
+    }
+
+    function renderProximas() {
+      var host = document.getElementById('proximasList');
+      var msg = document.getElementById('proximasMsg');
+      if (!host) return;
+      var list = filterUpcoming(lastResaRawList || []);
+      if (msg) msg.textContent = tf('count_resas', { n: list.length });
+      host.innerHTML = list.length
+        ? list.map(resaCardHtml).join('')
+        : nhbEmptyHtml(t('none_resas'), t('upcoming_hint') || t('empty_resas_hint'));
+      bindResaActions(host);
+    }
+
+    function showTab(name) {
+      document.querySelectorAll('#mainTabs button').forEach(function (b) {
+        b.classList.toggle('active', b.getAttribute('data-tab') === name);
+      });
+      ['resas', 'proximas', 'nouvelle', 'historique', 'mdp', 'parametres'].forEach(function (tabId) {
+        var el = document.getElementById('tab-' + tabId);
+        if (el) el.classList.toggle('nhb-hidden', tabId !== name);
+      });
+      if (name === 'resas') refreshResas();
+      if (name === 'proximas') {
+        if (lastResaRawList.length) renderProximas();
+        else refreshResas().then(function () { renderProximas(); });
+      }
+      if (name === 'nouvelle') loadPricePoints();
+      if (name === 'historique') refreshHistorique();
+      if (name === 'parametres') loadPrefsForm();
     }
 
     function updatePipelineCounts(all) {
@@ -556,17 +727,17 @@
     }
 
     function resaActionsHtml(r, inline) {
-      var isPendente = String(r.statut || '').toLowerCase() === 'pendente';
       var brand = brandName();
       var cls = inline ? 'nhb-btn ghost' : 'nhb-btn ghost';
       var html = '<button type="button" class="' + cls + '" data-detail="' + esc(r.id) + '">' + esc(t('detail')) + '</button>';
-      if (isPendente) {
+      if (hotelCanCancelResa(r)) {
         html += '<button type="button" class="' + cls + '" data-cancel="' + esc(r.id) + '">' + esc(t('cancel_own')) + '</button>';
       }
       if (r.telephone && nhbWaActive('hotel')) {
         html += '<a class="' + cls + '" href="' + esc(nhbWhatsAppUrl(r.telephone, nhbResaWhatsAppText(r, brand))) +
           '" target="_blank" rel="noopener">' + esc(t('whatsapp')) + '</a>';
       }
+      html += nhbWaOpsLinksHtml('hotel', nhbResaWhatsAppText(r, brand));
       html += '<a class="' + cls + '" href="' + esc(nhbCalendarUrl(r)) +
         '" target="_blank" rel="noopener">' + esc(t('calendar')) + '</a>';
       return html;
@@ -581,7 +752,7 @@
         '<div class="nhb-resa-trip">' + esc(r.origine) + ' → ' + esc(r.destination) + '</div>' +
         '<div class="nhb-resa-meta">' +
           esc(((r.clientPrenom || '') + ' ' + (r.clientNom || '')).trim()) + '<br>' +
-          esc(r.dateTransfer) + ' ' + esc(r.heureTransfer) +
+          esc(nhbFmtDateTime(r)) +
           ((r.prixFinal != null || r.prixAuto != null) ? (' · ' + esc(nhbFormatMoney(r.prixFinal != null ? r.prixFinal : r.prixAuto, 'hotel'))) : '') +
         '</div>' +
         '<div class="nhb-resa-actions">' + resaActionsHtml(r) + '</div>' +
@@ -646,7 +817,7 @@
           '<td>' + esc(r.id) + '</td>' +
           '<td>' + esc((r.clientPrenom || '') + ' ' + (r.clientNom || '')) + '</td>' +
           '<td>' + esc(r.origine) + ' → ' + esc(r.destination) + '</td>' +
-          '<td>' + esc(r.dateTransfer) + ' ' + esc(r.heureTransfer) + '</td>' +
+          '<td>' + esc(nhbFmtDateTime(r)) + '</td>' +
           '<td>' + badge(r.statut) + '</td>' +
           '<td class="actions-inline">' + resaActionsHtml(r, true) + '</td>' +
         '</tr>';
@@ -696,7 +867,7 @@
         '</div>' +
         '<div class="nhb-row2">' +
           '<div><label class="nhb-label">' + esc(t('th_trip')) + '</label><p>' + esc(r.origine) + ' → ' + esc(r.destination) + '</p></div>' +
-          '<div><label class="nhb-label">' + esc(t('date')) + ' / ' + esc(t('time')) + '</label><p>' + esc(r.dateTransfer) + ' ' + esc(r.heureTransfer) + '</p></div>' +
+          '<div><label class="nhb-label">' + esc(t('date')) + ' / ' + esc(t('time')) + '</label><p>' + esc(nhbFmtDateTime(r)) + '</p></div>' +
         '</div>' +
         '<div class="nhb-row2">' +
           '<div><label class="nhb-label">' + esc(t('th_pax')) + ' / ' + esc(t('th_bags')) + '</label><p>' + esc(r.personnes) + ' / ' + esc(r.malas) + '</p></div>' +
@@ -721,6 +892,11 @@
     }
 
     function cancelResa(id) {
+      var r = resasById[id];
+      if (r && !hotelCanCancelResa(r)) {
+        nhbToast(t('cancel_hotel_too_late') || ('Annulation hôtel ≥ ' + hotelPolicy().annulerMinHeures + 'h avant — contactez l’agence'), 'err');
+        return;
+      }
       nhbConfirm(t('confirm_cancel_resa') || (t('cancel_resa') + '?'), function () {
         agenciasApi({ action: 'annulerReservation', token: state.token, id: id }).then(function (data) {
           if (data.success) {
@@ -750,7 +926,7 @@
       else if (dr.dateA) body.dateA = dr.dateA;
       var st = document.getElementById('filter-status').value;
       if (st) body.statut = st;
-      agenciasApi(body).then(function (data) {
+      return agenciasApi(body).then(function (data) {
         if (!data.success) {
           msg.className = 'nhb-msg err';
           msg.textContent = data.error || t('error');
@@ -759,6 +935,7 @@
         }
         var all = data.reservations || [];
         updatePipelineCounts(all);
+        lastResaRawList = all;
         var list = all;
         var pipe = resaFilter.pipe;
         if (pipe === 'pendente' || pipe === 'confirmado') {
@@ -768,9 +945,10 @@
         } else if (pipe === 'upcoming') {
           list = filterUpcoming(all);
         }
-        lastResaRawList = list;
         resaPage = 1;
-        rerenderResasFromCache();
+        var filtered = applyClientResaFilters(list);
+        renderResasList(filtered);
+        if (activeTabName() === 'proximas') renderProximas();
       }).catch(function () {
         msg.className = 'nhb-msg err';
         msg.textContent = t('api_error');
@@ -846,6 +1024,9 @@
         else refreshResas();
       }, 250);
     });
+    var btnHistApply = document.getElementById('btnHistApply');
+    if (btnHistApply) btnHistApply.onclick = function () { histPage = 1; refreshHistorique(); };
+
     document.getElementById('btnSavePrefs').onclick = function () {
       var prefs = nhbReadPrefsForm('hotel');
       prefs.currency = 'EUR';

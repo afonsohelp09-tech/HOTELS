@@ -208,6 +208,29 @@ var NHB_I18N = {
     login_sub_hotel: 'Lisboa · Portal hotel',
     login_sub_supplier: 'Sistema · Fornecedor',
     upcoming: 'Próximas',
+    upcoming_hint: 'Reservas futuras.',
+    hotel_policy_title: 'Reglas del hotel',
+    cancel_hotel_too_late: 'Cancelación hotel solo con antelación — contacte la agencia.',
+    agency_api_url: 'API Apps Script de la agencia (/exec)',
+    upcoming_hint: 'Reservas futuras (não canceladas / realizadas).',
+    hotel_policy_title: 'Regras do hotel (reservas)',
+    hotel_policy_hint: 'Controla o que o hotel pode criar, editar ou cancelar.',
+    hotel_peut_creer: 'Pode criar reservas',
+    hotel_peut_annuler: 'Pode cancelar (≥ N horas)',
+    hotel_annuler_min_h: 'Horas mín. antes do transfer p/ cancelar',
+    hotel_edit_max_h: 'Horas máx. após criar p/ editar (0 = sem limite)',
+    hotel_edit_champs: 'Campos que o hotel pode alterar',
+    hotel_champ_client: 'Cliente',
+    hotel_champ_contact: 'Contacto',
+    hotel_champ_trajet: 'Trajeto',
+    hotel_champ_datetime: 'Data/hora',
+    hotel_champ_pax: 'Pax/malas',
+    hotel_champ_vol: 'Voo',
+    hotel_champ_chambre: 'Quarto',
+    hotel_champ_commentaires: 'Comentários',
+    cancel_hotel_too_late: 'Cancelamento hotel só com antecedência — contacte a agência.',
+    agency_api_url: 'API Apps Script da agência (/exec)',
+    agency_api_hint: 'Cada agência pode ter o seu próprio deploy /exec.',
     today: 'Hoje',
     export_excel: 'Exportar Excel',
     whatsapp: 'WhatsApp',
@@ -539,6 +562,17 @@ var NHB_I18N = {
     login_sub_hotel: 'Lisbon · Hotel portal',
     login_sub_supplier: 'System · Provider',
     upcoming: 'Upcoming',
+    upcoming_hint: 'Future transfers (not cancelled/done).',
+    hotel_policy_title: 'Hotel rules (reservations)',
+    hotel_policy_hint: 'Control what the hotel can create, edit or cancel.',
+    hotel_peut_creer: 'Can create reservations',
+    hotel_peut_annuler: 'Can cancel (≥ N hours)',
+    hotel_annuler_min_h: 'Min. hours before transfer to cancel',
+    hotel_edit_max_h: 'Max. hours after create to edit (0 = no limit)',
+    hotel_edit_champs: 'Fields the hotel may edit',
+    cancel_hotel_too_late: 'Hotel cancel only with advance notice — contact the agency.',
+    agency_api_url: 'Agency Apps Script API (/exec)',
+    agency_api_hint: 'Each agency can have its own /exec deploy.',
     today: 'Today',
     export_excel: 'Export Excel',
     whatsapp: 'WhatsApp',
@@ -869,6 +903,17 @@ var NHB_I18N = {
     login_sub_hotel: 'Lisbonne · Portail hôtel',
     login_sub_supplier: 'Système · Fournisseur',
     upcoming: 'À venir',
+    upcoming_hint: 'Transferts à venir (non annulés / réalisés).',
+    hotel_policy_title: 'Règles hôtel (réservations)',
+    hotel_policy_hint: 'Contrôle ce que l’hôtel peut créer, modifier ou annuler.',
+    hotel_peut_creer: 'Peut créer des réservations',
+    hotel_peut_annuler: 'Peut annuler (≥ N heures)',
+    hotel_annuler_min_h: 'Heures min. avant le transfer pour annuler',
+    hotel_edit_max_h: 'Heures max. après création pour éditer (0 = sans limite)',
+    hotel_edit_champs: 'Champs modifiables par l’hôtel',
+    cancel_hotel_too_late: 'Annulation hôtel seulement avec préavis — contactez l’agence.',
+    agency_api_url: 'API Apps Script de l’agence (/exec)',
+    agency_api_hint: 'Chaque agence peut avoir son propre déploiement /exec.',
     today: 'Aujourd\'hui',
     export_excel: 'Exporter Excel',
     whatsapp: 'WhatsApp',
@@ -1199,6 +1244,29 @@ var NHB_I18N = {
     login_sub_hotel: 'Lisboa · Portal hotel',
     login_sub_supplier: 'Sistema · Proveedor',
     upcoming: 'Próximas',
+    upcoming_hint: 'Reservas futuras.',
+    hotel_policy_title: 'Reglas del hotel',
+    cancel_hotel_too_late: 'Cancelación hotel solo con antelación — contacte la agencia.',
+    agency_api_url: 'API Apps Script de la agencia (/exec)',
+    upcoming_hint: 'Reservas futuras (não canceladas / realizadas).',
+    hotel_policy_title: 'Regras do hotel (reservas)',
+    hotel_policy_hint: 'Controla o que o hotel pode criar, editar ou cancelar.',
+    hotel_peut_creer: 'Pode criar reservas',
+    hotel_peut_annuler: 'Pode cancelar (≥ N horas)',
+    hotel_annuler_min_h: 'Horas mín. antes do transfer p/ cancelar',
+    hotel_edit_max_h: 'Horas máx. após criar p/ editar (0 = sem limite)',
+    hotel_edit_champs: 'Campos que o hotel pode alterar',
+    hotel_champ_client: 'Cliente',
+    hotel_champ_contact: 'Contacto',
+    hotel_champ_trajet: 'Trajeto',
+    hotel_champ_datetime: 'Data/hora',
+    hotel_champ_pax: 'Pax/malas',
+    hotel_champ_vol: 'Voo',
+    hotel_champ_chambre: 'Quarto',
+    hotel_champ_commentaires: 'Comentários',
+    cancel_hotel_too_late: 'Cancelamento hotel só com antecedência — contacte a agência.',
+    agency_api_url: 'API Apps Script da agência (/exec)',
+    agency_api_hint: 'Cada agência pode ter o seu próprio deploy /exec.',
     today: 'Hoy',
     export_excel: 'Exportar Excel',
     whatsapp: 'WhatsApp',
@@ -1376,6 +1444,8 @@ function nhbNavIconSvg(name) {
     chauffeurs: '<path d="M5 17h14v-5H5v5z"/><path d="M7 12l2-5h6l2 5"/><circle cx="8" cy="17" r="1.5"/><circle cx="16" cy="17" r="1.5"/>',
     equipe: '<circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 19c0-3 3-5 6-5s6 2 6 5"/><path d="M14 19c0-2 2-3.5 4.5-3.5S22 17 22 19"/>',
     historique: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+    upcoming: '<path d="M5 12h14"/><path d="M13 6l6 6-6 6"/><circle cx="5" cy="12" r="1.5"/>',
+    proximas: '<path d="M5 12h14"/><path d="M13 6l6 6-6 6"/><circle cx="5" cy="12" r="1.5"/>',
     mdp: '<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/>',
     parametres: '<circle cx="12" cy="12" r="3"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
     more: '<circle cx="6" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="18" cy="12" r="1.5"/>'
@@ -1444,12 +1514,23 @@ function nhbBindBottomNav(tabsSel, bottomSel) {
       visible.push(b);
     });
     var useTiers = visible.some(function (b) { return b.getAttribute('data-nav-tier') === 'primary'; });
-    var primary = useTiers
-      ? visible.filter(function (b) { return b.getAttribute('data-nav-tier') === 'primary'; })
-      : visible;
-    var secondary = useTiers
-      ? visible.filter(function (b) { return b.getAttribute('data-nav-tier') !== 'primary'; })
-      : [];
+    var primary;
+    var secondary;
+    if (useTiers) {
+      primary = visible.filter(function (b) { return b.getAttribute('data-nav-tier') === 'primary'; });
+      secondary = visible.filter(function (b) { return b.getAttribute('data-nav-tier') !== 'primary'; });
+      /* Si trop de primaires (>4), basculer le surplus dans Plus */
+      if (primary.length > 4) {
+        secondary = primary.slice(4).concat(secondary);
+        primary = primary.slice(0, 4);
+      }
+    } else if (visible.length > 5) {
+      primary = visible.slice(0, 4);
+      secondary = visible.slice(4);
+    } else {
+      primary = visible;
+      secondary = [];
+    }
     function addNavBtn(b) {
       var nb = document.createElement('button');
       nb.type = 'button';

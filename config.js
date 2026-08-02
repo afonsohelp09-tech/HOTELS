@@ -1,6 +1,6 @@
 /* COPIE de shared/ — editer shared/ puis sync */
 /**
- * NHALABENE / AGENCIAS — CONFIGURATION v1.5.4
+ * NHALABENE / AGENCIAS — CONFIGURATION v1.5.6
  * Priorité : AGENCIAS_API_URL dans index.html, sinon API_URL ci-dessous.
  */
 var AGENCIAS_CONFIG = {
@@ -8,7 +8,7 @@ var AGENCIAS_CONFIG = {
     ? AGENCIAS_API_URL
     : 'https://script.google.com/macros/s/AKfycbym0EOCpYVyQQb0DyhxWGbgmfnCbVLhSBcw4b05qEQSG_kUnu0vJ7iiaw3fGkp-qFCv1Q/exec',
 
-  VERSION: '1.5.5',
+  VERSION: '1.5.7',
   PRODUCT: 'Nhalabene',
   ARCHITECTURE: 'option-2-fournisseur',
   ASSETS_BASE: './assets/',
@@ -44,28 +44,38 @@ function agenciasApplyBranding(brand, opts) {
   var b = brand || {};
   var mode = String(b.mode || 'standard').toLowerCase();
   var customLogo = (b.logoUrl || '').trim();
-  var customNom = (b.nomAffiche || '').trim();
-  var useStandardVisual = mode === 'standard' || !customLogo ||
+  var customNom = (b.nomAffiche || b.nomInterne || '').trim();
+  var useStandardVisual = mode === 'standard' ||
     /^assets\//i.test(customLogo) || /icon_carre_/i.test(customLogo) || /icon_n(_|\.)/i.test(customLogo);
+  /* Custom sans logo → nom seul (pas de logo Nhalabene) */
+  var nameOnly = mode === 'custom' && !customLogo;
 
   var nom = mode === 'standard'
     ? AGENCIAS_CONFIG.BRAND_STANDARD.NOM
     : (customNom || AGENCIAS_CONFIG.BRAND_STANDARD.NOM);
-  var logo = useStandardVisual
+  var logo = (useStandardVisual && !nameOnly)
     ? agenciasStandardLogoUrl()
     : customLogo;
 
   if (opts.titleEl) opts.titleEl.textContent = nom;
   if (opts.logoEl) {
-    opts.logoEl.innerHTML = agenciasLogoImgHtml(logo, nom);
+    if (nameOnly) {
+      opts.logoEl.innerHTML = '<span class="nhb-brand-name">' + String(nom).replace(/</g, '&lt;') + '</span>';
+    } else {
+      opts.logoEl.innerHTML = agenciasLogoImgHtml(logo, nom);
+    }
   }
   if (opts.horizontalEl) {
-    var hz = useStandardVisual
-      ? agenciasStandardLogoUrl(AGENCIAS_CONFIG.BRAND_STANDARD.LOGO_HORIZONTAL)
-      : logo;
-    opts.horizontalEl.innerHTML = agenciasLogoImgHtml(hz, nom);
+    if (nameOnly) {
+      opts.horizontalEl.innerHTML = '<span class="nhb-brand-name">' + String(nom).replace(/</g, '&lt;') + '</span>';
+    } else {
+      var hz = useStandardVisual
+        ? agenciasStandardLogoUrl(AGENCIAS_CONFIG.BRAND_STANDARD.LOGO_HORIZONTAL)
+        : logo;
+      opts.horizontalEl.innerHTML = agenciasLogoImgHtml(hz, nom);
+    }
   }
-  return { nomAffiche: nom, logoUrl: logo, mode: mode };
+  return { nomAffiche: nom, logoUrl: logo, mode: mode, nameOnly: nameOnly, apiUrl: b.apiUrl || '' };
 }
 
 /** Callback global optionnel : window.nhbOnSessionInvalid = function(){} */

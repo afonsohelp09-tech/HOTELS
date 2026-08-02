@@ -116,6 +116,56 @@ function nhbPrompt(title, opts, onOk) {
   setTimeout(function () { inp.focus(); }, 30);
 }
 
+function nhbFmtDate(v) {
+  if (v == null || v === '') return '—';
+  if (Object.prototype.toString.call(v) === '[object Date]' && !isNaN(v.getTime())) {
+    var y = v.getFullYear();
+    var m = ('0' + (v.getMonth() + 1)).slice(-2);
+    var d = ('0' + v.getDate()).slice(-2);
+    return d + '/' + m + '/' + y;
+  }
+  var s = String(v).trim();
+  if (/^\d{4}-\d{2}-\d{2}/.test(s)) {
+    var p = s.slice(0, 10).split('-');
+    return p[2] + '/' + p[1] + '/' + p[0];
+  }
+  if (/GMT|Hora |Summer|Standard|verão|inverno/i.test(s) || /^(Sun|Mon|Tue|Wed|Thu|Fri|Sat)\s/i.test(s)) {
+    var parsed = new Date(s);
+    if (!isNaN(parsed.getTime())) {
+      return nhbFmtDate(parsed);
+    }
+  }
+  return s;
+}
+
+function nhbFmtTime(v) {
+  if (v == null || v === '') return '';
+  if (Object.prototype.toString.call(v) === '[object Date]' && !isNaN(v.getTime())) {
+    return ('0' + v.getHours()).slice(-2) + ':' + ('0' + v.getMinutes()).slice(-2);
+  }
+  if (typeof v === 'number' && isFinite(v) && v >= 0 && v < 1.5) {
+    var totalMin = Math.round(v * 24 * 60) % 1440;
+    return ('0' + Math.floor(totalMin / 60)).slice(-2) + ':' + ('0' + (totalMin % 60)).slice(-2);
+  }
+  var s = String(v).trim();
+  if (/^\d{1,2}:\d{2}/.test(s)) {
+    var hm = s.split(':');
+    return ('0' + parseInt(hm[0], 10)).slice(-2) + ':' + ('0' + parseInt(hm[1], 10)).slice(-2);
+  }
+  if (/GMT|Hora |1899/i.test(s)) {
+    var parsed = new Date(s);
+    if (!isNaN(parsed.getTime())) return nhbFmtTime(parsed);
+  }
+  return s.slice(0, 5);
+}
+
+function nhbFmtDateTime(r) {
+  var d = nhbFmtDate(r && (r.dateTransfer != null ? r.dateTransfer : r));
+  var h = nhbFmtTime(r && r.heureTransfer != null ? r.heureTransfer : '');
+  if (d === '—' && !h) return '—';
+  return h ? (d + ' ' + h) : d;
+}
+
 function nhbResaWhatsAppText(r, brand) {
   brand = brand || 'Nhalabene';
   var pax = (typeof t === 'function') ? t('wa_pax') : 'Pax';
@@ -125,7 +175,7 @@ function nhbResaWhatsAppText(r, brand) {
   return brand + ' #' + (r.id || '') + '\n' +
     (r.clientPrenom || '') + ' ' + (r.clientNom || '') + '\n' +
     (r.origine || '') + ' → ' + (r.destination || '') + '\n' +
-    (r.dateTransfer || '') + ' ' + (r.heureTransfer || '') + '\n' +
+    nhbFmtDateTime(r) + '\n' +
     pax + ': ' + (r.personnes || '') + ' | ' + bags + ': ' + (r.malas || '') +
     (r.numVol ? ('\n' + flight + ': ' + r.numVol) : '') +
     (r.telephone ? ('\n' + telL + ' ' + r.telephone) : '');
