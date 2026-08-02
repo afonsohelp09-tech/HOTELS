@@ -1,4 +1,4 @@
-﻿/* COPIE de shared/ — editer shared/ puis sync */
+/* COPIE de shared/ — editer shared/ puis sync */
 /** Nhalabene ops helpers — toast, WA, calendar, excel, empty state */
 function nhbToast(msg, type) {
   type = type || 'default'; // default|ok|err|warn
@@ -28,6 +28,92 @@ function nhbWhatsAppUrl(tel, text) {
   var d = nhbPhoneDigits(tel).replace(/^\+/, '');
   var q = encodeURIComponent(text || '');
   return d ? ('https://wa.me/' + d + '?text=' + q) : ('https://wa.me/?text=' + q);
+}
+
+/** Liens WA depuis prefs (numéros + groupe) */
+function nhbWaOpsLinksHtml(scope, text) {
+  if (!nhbWaActive(scope)) return '';
+  var p = nhbPrefsGet(scope) || {};
+  var html = '';
+  var nums = String(p.waNumbers || '').split(/[\n,;]+/).map(function (s) { return s.trim(); }).filter(Boolean);
+  var lbl = (typeof t === 'function') ? t('whatsapp') : 'WhatsApp';
+  nums.forEach(function (n, i) {
+    html += '<a class="nhb-btn ghost" href="' + nhbWhatsAppUrl(n, text) +
+      '" target="_blank" rel="noopener">' + lbl + (nums.length > 1 ? ' ' + (i + 1) : '') + '</a>';
+  });
+  var g = String(p.waGroup || '').trim();
+  if (g && /chat\.whatsapp\.com|wa\.me/i.test(g)) {
+    var gl = (typeof t === 'function') ? t('whatsapp_group') : 'Grupo WA';
+    html += '<a class="nhb-btn ghost" href="' + g.replace(/"/g, '') + '" target="_blank" rel="noopener">' + gl + '</a>';
+  }
+  return html;
+}
+
+/** Dialogue confirm (remplace confirm natif) */
+function nhbConfirm(message, onOk, onCancel) {
+  var existing = document.getElementById('nhbDialogOverlay');
+  if (existing) existing.parentNode.removeChild(existing);
+  var ov = document.createElement('div');
+  ov.id = 'nhbDialogOverlay';
+  ov.className = 'nhb-dialog-overlay';
+  ov.innerHTML =
+    '<div class="nhb-dialog" role="dialog" aria-modal="true">' +
+      '<p class="nhb-dialog-msg"></p>' +
+      '<div class="nhb-dialog-actions">' +
+        '<button type="button" class="nhb-btn ghost" data-act="no"></button>' +
+        '<button type="button" class="nhb-btn" data-act="yes"></button>' +
+      '</div>' +
+    '</div>';
+  ov.querySelector('.nhb-dialog-msg').textContent = message;
+  ov.querySelector('[data-act="no"]').textContent = (typeof t === 'function') ? t('cancel') : 'Cancel';
+  ov.querySelector('[data-act="yes"]').textContent = (typeof t === 'function') ? t('confirm_ok') : 'OK';
+  function close() { if (ov.parentNode) ov.parentNode.removeChild(ov); }
+  ov.querySelector('[data-act="no"]').onclick = function () { close(); if (onCancel) onCancel(); };
+  ov.querySelector('[data-act="yes"]').onclick = function () { close(); if (onOk) onOk(); };
+  ov.addEventListener('click', function (e) { if (e.target === ov) { close(); if (onCancel) onCancel(); } });
+  document.body.appendChild(ov);
+  ov.querySelector('[data-act="yes"]').focus();
+}
+
+/** Dialogue prompt texte (remplace prompt natif) */
+function nhbPrompt(title, opts, onOk) {
+  opts = opts || {};
+  var existing = document.getElementById('nhbDialogOverlay');
+  if (existing) existing.parentNode.removeChild(existing);
+  var ov = document.createElement('div');
+  ov.id = 'nhbDialogOverlay';
+  ov.className = 'nhb-dialog-overlay';
+  ov.innerHTML =
+    '<div class="nhb-dialog" role="dialog" aria-modal="true">' +
+      '<p class="nhb-dialog-msg"></p>' +
+      '<input class="nhb-input" id="nhbPromptInput" type="' + (opts.type || 'text') + '" autocomplete="off" />' +
+      '<div class="nhb-dialog-actions">' +
+        '<button type="button" class="nhb-btn ghost" data-act="no"></button>' +
+        '<button type="button" class="nhb-btn" data-act="yes"></button>' +
+      '</div>' +
+    '</div>';
+  ov.querySelector('.nhb-dialog-msg').textContent = title || '';
+  var inp = ov.querySelector('#nhbPromptInput');
+  inp.placeholder = opts.placeholder || '';
+  if (opts.value) inp.value = opts.value;
+  ov.querySelector('[data-act="no"]').textContent = (typeof t === 'function') ? t('cancel') : 'Cancel';
+  ov.querySelector('[data-act="yes"]').textContent = (typeof t === 'function') ? t('confirm_ok') : 'OK';
+  function close() { if (ov.parentNode) ov.parentNode.removeChild(ov); }
+  function submit() {
+    var v = inp.value;
+    var min = opts.minLength != null ? opts.minLength : 0;
+    if (min && String(v).length < min) {
+      nhbToast((typeof t === 'function') ? t('owner_pass_min') : 'Min length', 'err');
+      return;
+    }
+    close();
+    if (onOk) onOk(v);
+  }
+  ov.querySelector('[data-act="no"]').onclick = function () { close(); };
+  ov.querySelector('[data-act="yes"]').onclick = submit;
+  inp.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); submit(); } });
+  document.body.appendChild(ov);
+  setTimeout(function () { inp.focus(); }, 30);
 }
 
 function nhbResaWhatsAppText(r, brand) {
@@ -149,7 +235,8 @@ function nhbReadPrefsForm(scope) {
   var el = function (id) { return document.getElementById(id); };
   if (el('pref-lang')) p.lang = el('pref-lang').value;
   if (el('pref-density')) p.density = el('pref-density').value;
-  if (el('pref-currency')) p.currency = el('pref-currency').value;
+  if (el('pref-currency')) p.currency = 'EUR';
+  else p.currency = 'EUR';
   if (el('pref-text-size')) p.textSize = el('pref-text-size').value;
   if (el('pref-work-bg')) p.workBg = el('pref-work-bg').value || '';
   if (el('pref-wa-numbers')) p.waNumbers = el('pref-wa-numbers').value.trim();
@@ -165,7 +252,8 @@ function nhbFillPrefsForm(scope) {
   var el = function (id) { return document.getElementById(id); };
   if (el('pref-lang')) el('pref-lang').value = p.lang || (typeof NHB_LANG !== 'undefined' ? NHB_LANG : 'pt');
   if (el('pref-density')) el('pref-density').value = p.density === 'compact' ? 'compact' : 'comfortable';
-  if (el('pref-currency')) el('pref-currency').value = p.currency || 'EUR';
+  if (el('pref-currency')) el('pref-currency').value = 'EUR';
+  if (el('pref-currency-label')) el('pref-currency-label').textContent = 'Euro (€)';
   if (el('pref-text-size')) el('pref-text-size').value = p.textSize === 'large' ? 'large' : 'normal';
   if (el('pref-work-bg')) el('pref-work-bg').value = p.workBg || '';
   if (el('pref-work-bg-hex')) el('pref-work-bg-hex').value = p.workBg || '#0b1623';
@@ -196,8 +284,7 @@ function nhbExtraSettingsHtml() {
         '<button type="button" class="nhb-bg-swatch" data-bg="#152031" title="Slate"></button>' +
         '<button type="button" class="nhb-bg-swatch" data-bg="#1a2332" title="Blue gray"></button>' +
         '<button type="button" class="nhb-bg-swatch" data-bg="#EEF2F7" title="Clair"></button>' +
-        '<button type="button" class="nhb-bg-swatch" data-bg="#f4f0e8" title="Crème"></button>' +
-        '<button type="button" class="nhb-bg-swatch" data-bg="#e8f0ec" title="Menthe"></button>' +
+        '<button type="button" class="nhb-bg-swatch" data-bg="#0d2137" title="Brand navy"></button>' +
       '</div></div>' +
     '</div>' +
     '<h3 class="nhb-settings-h" data-i18n="settings_wa_title">WhatsApp</h3>' +
@@ -252,12 +339,50 @@ function nhbWaActive(scope) {
   var p = nhbPrefsGet(scope) || {};
   return p.waActive !== false;
 }
+/** Affichage monétaire — Euro uniquement (pas de FX) */
 function nhbFormatMoney(n, scope) {
-  var cur = (nhbPrefsGet(scope).currency) || 'EUR';
   var v = Number(n);
   if (isNaN(v)) return '—';
-  var sym = cur === 'USD' ? 'USD' : (cur === 'GBP' ? 'GBP' : 'EUR');
-  return v.toFixed(2) + ' ' + sym;
+  try {
+    return new Intl.NumberFormat('pt-PT', { style: 'currency', currency: 'EUR' }).format(v);
+  } catch (e) {
+    return v.toFixed(2).replace('.', ',') + ' €';
+  }
+}
+
+/** Force devise locale = EUR (compat prefs anciennes USD/GBP) */
+function nhbEnsureEuroPrefs(scope) {
+  var p = nhbPrefsGet(scope) || {};
+  if (p.currency !== 'EUR') {
+    p.currency = 'EUR';
+    nhbPrefsSet(scope, p);
+  }
+  return p;
+}
+
+/** Sync prefs vers backend (best-effort) */
+function nhbSyncPrefsToServer(scope, token) {
+  if (!token || typeof agenciasApi !== 'function') return Promise.resolve();
+  var p = nhbPrefsGet(scope) || {};
+  p.currency = 'EUR';
+  return agenciasApi({ action: 'sauverPrefs', token: token, prefs: p, scope: scope })
+    .then(function (r) { return r; })
+    .catch(function () { return null; });
+}
+
+function nhbLoadPrefsFromServer(scope, token) {
+  if (!token || typeof agenciasApi !== 'function') return Promise.resolve(null);
+  return agenciasApi({ action: 'chargerPrefs', token: token, scope: scope })
+    .then(function (r) {
+      if (r && r.success && r.prefs && typeof r.prefs === 'object') {
+        r.prefs.currency = 'EUR';
+        nhbPrefsSet(scope, Object.assign({}, nhbPrefsGet(scope), r.prefs));
+        nhbApplyPrefs(scope);
+        return r.prefs;
+      }
+      return null;
+    })
+    .catch(function () { return null; });
 }
 
 /** Pagination client */

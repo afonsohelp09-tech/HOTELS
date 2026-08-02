@@ -309,12 +309,9 @@
         </div>
         <div class="nhb-row2">
           <div>
-            <label class="nhb-label" for="pref-currency" data-i18n="settings_currency">Moeda</label>
-            <select class="nhb-select" id="pref-currency">
-              <option value="EUR">EUR</option>
-              <option value="USD">USD</option>
-              <option value="GBP">GBP</option>
-            </select>
+            <label class="nhb-label" data-i18n="settings_currency">Moeda</label>
+            <div class="nhb-currency-locked" id="pref-currency-label">Euro (€)</div>
+            <input type="hidden" id="pref-currency" value="EUR" />
           </div>
         </div>
         <div id="nhbExtraPrefs"></div>
@@ -337,6 +334,7 @@
     if (!nhbCheckBrowserSupport()) { /* stop */ }
     else {
     nhbBindOfflineBanner();
+    nhbEnsureEuroPrefs('hotel');
     nhbApplyPrefs('hotel');
 
     var state = {
@@ -434,6 +432,7 @@
     }
 
     function showApp(brand) {
+      nhbLoadPrefsFromServer('hotel', state.token);
       nhbSetAuthScreen(false);
       document.getElementById('view-app').classList.remove('nhb-hidden');
       document.getElementById('btnLogout').classList.remove('nhb-hidden');
@@ -507,7 +506,7 @@
         }
         if (data.prixAuto != null) {
           lastPrixAuto = data.prixAuto;
-          disp.textContent = Number(data.prixAuto).toFixed(2) + ' €';
+          disp.textContent = nhbFormatMoney(data.prixAuto, 'hotel');
           hint.textContent = data.match ? t('price_found') : t('price_approx');
         } else {
           lastPrixAuto = null;
@@ -583,6 +582,7 @@
         '<div class="nhb-resa-meta">' +
           esc(((r.clientPrenom || '') + ' ' + (r.clientNom || '')).trim()) + '<br>' +
           esc(r.dateTransfer) + ' ' + esc(r.heureTransfer) +
+          ((r.prixFinal != null || r.prixAuto != null) ? (' · ' + esc(nhbFormatMoney(r.prixFinal != null ? r.prixFinal : r.prixAuto, 'hotel'))) : '') +
         '</div>' +
         '<div class="nhb-resa-actions">' + resaActionsHtml(r) + '</div>' +
       '</div>';
@@ -703,7 +703,9 @@
           '<div><label class="nhb-label">' + esc(t('flight')) + ' / ' + esc(t('room')) + '</label><p>' + esc(r.numVol || '—') + ' / ' + esc(r.numChambre || '—') + '</p></div>' +
         '</div>' +
         (r.commentaires ? '<p class="nhb-meta">' + esc(r.commentaires) + '</p>' : '') +
-        '<div class="nhb-resa-actions" style="margin-top:1rem">' + resaActionsHtml(r) + '</div>' +
+        '<p><strong>' + esc(t('th_price')) + ':</strong> ' + ((r.prixFinal != null || r.prixAuto != null) ? esc(nhbFormatMoney(r.prixFinal != null ? r.prixFinal : r.prixAuto, 'hotel')) : '—') + '</p>' +
+        '<div class="nhb-resa-actions" style="margin-top:1rem">' + resaActionsHtml(r) + nhbWaOpsLinksHtml('hotel', nhbResaWhatsAppText(r, brandName())) +
+          '<button type="button" class="nhb-btn ghost" id="btnPrintDetail">' + esc(t('print_voucher')) + '</button></div>' +
         '<button type="button" class="nhb-btn ghost block" id="btnCloseDetail" style="margin-top:0.75rem" aria-label="' + esc(t('sheet_close')) + '">' + esc(t('sheet_close')) + '</button>';
       sheet.classList.remove('nhb-hidden');
       sheet.setAttribute('aria-hidden', 'false');
@@ -713,21 +715,24 @@
         if (e.target === sheet) closeDetail();
       };
       document.getElementById('btnCloseDetail').onclick = closeDetail;
+      var pb = document.getElementById('btnPrintDetail');
+      if (pb) pb.onclick = function () { window.print(); };
       bindResaActions(panel);
     }
 
     function cancelResa(id) {
-      if (!confirm(t('confirm_cancel_resa') || (t('cancel_resa') + '?'))) return;
-      agenciasApi({ action: 'annulerReservation', token: state.token, id: id }).then(function (data) {
-        if (data.success) {
-          nhbToast(t('cancel_resa') + ' OK', 'ok');
-          closeDetail();
-          refreshResas();
-        } else {
-          nhbToast(data.error || t('fail'), 'err');
-        }
-      }).catch(function () {
-        nhbToast(t('api_error'), 'err');
+      nhbConfirm(t('confirm_cancel_resa') || (t('cancel_resa') + '?'), function () {
+        agenciasApi({ action: 'annulerReservation', token: state.token, id: id }).then(function (data) {
+          if (data.success) {
+            nhbToast(t('cancel_resa') + ' OK', 'ok');
+            closeDetail();
+            refreshResas();
+          } else {
+            nhbToast(data.error || t('fail'), 'err');
+          }
+        }).catch(function () {
+          nhbToast(t('api_error'), 'err');
+        });
       });
     }
 
@@ -843,8 +848,11 @@
     });
     document.getElementById('btnSavePrefs').onclick = function () {
       var prefs = nhbReadPrefsForm('hotel');
+      prefs.currency = 'EUR';
       nhbPrefsSet('hotel', prefs);
-      nhbApplyPrefs('hotel');
+      nhbSyncPrefsToServer('hotel', state.token);
+      nhbEnsureEuroPrefs('hotel');
+    nhbApplyPrefs('hotel');
       if (prefs.lang && typeof nhbSetLang === 'function') nhbSetLang(prefs.lang);
       else if (prefs.lang && typeof setLang === 'function') setLang(prefs.lang);
       document.getElementById('prefsMsg').className = 'nhb-msg ok';

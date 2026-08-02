@@ -1,4 +1,4 @@
-﻿/* COPIE de shared/ — editer shared/ puis sync */
+/* COPIE de shared/ — editer shared/ puis sync */
 /**
  * Nhalabene AGENCIAS — i18n PT / EN / FR / ES
  * Usage: data-i18n="key" | data-i18n-placeholder="key" | data-i18n-title="key"
@@ -310,7 +310,33 @@ var NHB_I18N = {
     page_size: 'Por página',
     aria_language: 'Idioma',
     aria_theme: 'Tema',
-    vehicle_ph: 'Sedan / Van'
+    vehicle_ph: 'Sedan / Van',
+    tab_more: 'Mais',
+    confirm_ok: 'OK',
+    print_voucher: 'Imprimir',
+    currency_euro: 'Euro (€)',
+    whatsapp_group: 'Grupo WhatsApp',
+    empty_hotels: 'Nenhum hotel',
+    empty_hotels_hint: 'Crie o primeiro hotel parceiro.',
+    empty_prix: 'Nenhum preço',
+    empty_prix_hint: 'Adicione tarifas por trajeto.',
+    empty_chauffeurs: 'Nenhum motorista',
+    empty_chauffeurs_hint: 'Adicione motoristas para atribuir transfers.',
+    empty_equipe: 'Nenhum membro',
+    empty_equipe_hint: 'Convide a sua equipa.',
+    empty_historique: 'Sem histórico',
+    empty_historique_hint: 'As ações aparecerão aqui.',
+    empty_agences: 'Nenhuma agência',
+    empty_agences_hint: 'Crie a primeira agência.',
+    search_agences_ph: 'Pesquisar agência…',
+    hist_from: 'De',
+    hist_to: 'Até',
+    hist_search_ph: 'Pesquisar histórico…',
+    hist_apply: 'Filtrar',
+    ca_label: 'CA (€)',
+    overview_by_agency: 'Por agência',
+    export_csv: 'Exportar CSV',
+    prefs_synced: 'Preferências sincronizadas'
   },
   en: {
     lang_name: 'English',
@@ -614,7 +640,33 @@ var NHB_I18N = {
     page_size: 'Per page',
     aria_language: 'Language',
     aria_theme: 'Theme',
-    vehicle_ph: 'Sedan / Van'
+    vehicle_ph: 'Sedan / Van',
+    tab_more: 'More',
+    confirm_ok: 'OK',
+    print_voucher: 'Print',
+    currency_euro: 'Euro (€)',
+    whatsapp_group: 'WhatsApp group',
+    empty_hotels: 'No hotels',
+    empty_hotels_hint: 'Create your first partner hotel.',
+    empty_prix: 'No prices',
+    empty_prix_hint: 'Add fares by route.',
+    empty_chauffeurs: 'No drivers',
+    empty_chauffeurs_hint: 'Add drivers to assign transfers.',
+    empty_equipe: 'No team members',
+    empty_equipe_hint: 'Invite your team.',
+    empty_historique: 'No history',
+    empty_historique_hint: 'Actions will appear here.',
+    empty_agences: 'No agencies',
+    empty_agences_hint: 'Create the first agency.',
+    search_agences_ph: 'Search agency…',
+    hist_from: 'From',
+    hist_to: 'To',
+    hist_search_ph: 'Search history…',
+    hist_apply: 'Filter',
+    ca_label: 'Revenue (€)',
+    overview_by_agency: 'By agency',
+    export_csv: 'Export CSV',
+    prefs_synced: 'Preferences synced'
   },
   fr: {
     lang_name: 'Français',
@@ -918,7 +970,33 @@ var NHB_I18N = {
     page_size: 'Par page',
     aria_language: 'Langue',
     aria_theme: 'Thème',
-    vehicle_ph: 'Berline / Van'
+    vehicle_ph: 'Berline / Van',
+    tab_more: 'Plus',
+    confirm_ok: 'OK',
+    print_voucher: 'Imprimer',
+    currency_euro: 'Euro (€)',
+    whatsapp_group: 'Groupe WhatsApp',
+    empty_hotels: 'Aucun hôtel',
+    empty_hotels_hint: 'Créez le premier hôtel partenaire.',
+    empty_prix: 'Aucun tarif',
+    empty_prix_hint: 'Ajoutez des tarifs par trajet.',
+    empty_chauffeurs: 'Aucun chauffeur',
+    empty_chauffeurs_hint: 'Ajoutez des chauffeurs pour attribuer.',
+    empty_equipe: 'Aucun membre',
+    empty_equipe_hint: 'Invitez votre équipe.',
+    empty_historique: 'Pas d’historique',
+    empty_historique_hint: 'Les actions apparaîtront ici.',
+    empty_agences: 'Aucune agence',
+    empty_agences_hint: 'Créez la première agence.',
+    search_agences_ph: 'Rechercher une agence…',
+    hist_from: 'Du',
+    hist_to: 'Au',
+    hist_search_ph: 'Rechercher l’historique…',
+    hist_apply: 'Filtrer',
+    ca_label: 'CA (€)',
+    overview_by_agency: 'Par agence',
+    export_csv: 'Exporter CSV',
+    prefs_synced: 'Préférences synchronisées'
   },
   es: {
     lang_name: 'Español',
@@ -1222,7 +1300,33 @@ var NHB_I18N = {
     page_size: 'Por página',
     aria_language: 'Idioma',
     aria_theme: 'Tema',
-    vehicle_ph: 'Sedán / Van'
+    vehicle_ph: 'Sedán / Van',
+    tab_more: 'Más',
+    confirm_ok: 'OK',
+    print_voucher: 'Imprimir',
+    currency_euro: 'Euro (€)',
+    whatsapp_group: 'Grupo WhatsApp',
+    empty_hotels: 'Ningún hotel',
+    empty_hotels_hint: 'Cree el primer hotel asociado.',
+    empty_prix: 'Sin precios',
+    empty_prix_hint: 'Añada tarifas por trayecto.',
+    empty_chauffeurs: 'Ningún conductor',
+    empty_chauffeurs_hint: 'Añada conductores para asignar.',
+    empty_equipe: 'Sin miembros',
+    empty_equipe_hint: 'Invite a su equipo.',
+    empty_historique: 'Sin historial',
+    empty_historique_hint: 'Las acciones aparecerán aquí.',
+    empty_agences: 'Ninguna agencia',
+    empty_agences_hint: 'Cree la primera agencia.',
+    search_agences_ph: 'Buscar agencia…',
+    hist_from: 'Desde',
+    hist_to: 'Hasta',
+    hist_search_ph: 'Buscar historial…',
+    hist_apply: 'Filtrar',
+    ca_label: 'CA (€)',
+    overview_by_agency: 'Por agencia',
+    export_csv: 'Exportar CSV',
+    prefs_synced: 'Preferencias sincronizadas'
   }
 };
 
@@ -1273,7 +1377,8 @@ function nhbNavIconSvg(name) {
     equipe: '<circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 19c0-3 3-5 6-5s6 2 6 5"/><path d="M14 19c0-2 2-3.5 4.5-3.5S22 17 22 19"/>',
     historique: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
     mdp: '<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/>',
-    parametres: '<circle cx="12" cy="12" r="3"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>'
+    parametres: '<circle cx="12" cy="12" r="3"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+    more: '<circle cx="6" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="18" cy="12" r="1.5"/>'
   };
   var body = p[name] || '<circle cx="12" cy="12" r="3"/>';
   return '<svg class="nhb-nav-svg" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + body + '</svg>';
@@ -1295,10 +1400,57 @@ function nhbBindBottomNav(tabsSel, bottomSel) {
   document.body.classList.add('has-bottom-nav');
   var syncTimer = null;
   var obs = null;
+  var moreSheet = document.getElementById('nhbMoreSheet');
+  if (!moreSheet) {
+    moreSheet = document.createElement('div');
+    moreSheet.id = 'nhbMoreSheet';
+    moreSheet.className = 'nhb-more-sheet nhb-hidden';
+    moreSheet.setAttribute('aria-hidden', 'true');
+    document.body.appendChild(moreSheet);
+  }
+  function closeMore() {
+    moreSheet.classList.add('nhb-hidden');
+    moreSheet.setAttribute('aria-hidden', 'true');
+  }
+  function openMore(secondaryBtns) {
+    moreSheet.innerHTML = '<h3>' + t('tab_more') + '</h3>';
+    secondaryBtns.forEach(function (b) {
+      var row = document.createElement('button');
+      row.type = 'button';
+      var iconKey = b.getAttribute('data-icon') || b.getAttribute('data-tab') || '';
+      var label = b.getAttribute('data-i18n') ? t(b.getAttribute('data-i18n')) : b.textContent;
+      row.innerHTML = nhbNavButtonHtml(iconKey, label);
+      row.onclick = function () {
+        closeMore();
+        b.click();
+        sync();
+      };
+      moreSheet.appendChild(row);
+    });
+    var cancel = document.createElement('button');
+    cancel.type = 'button';
+    cancel.textContent = t('cancel');
+    cancel.onclick = closeMore;
+    moreSheet.appendChild(cancel);
+    moreSheet.classList.remove('nhb-hidden');
+    moreSheet.setAttribute('aria-hidden', 'false');
+  }
   function syncNow() {
     bottom.innerHTML = '';
+    closeMore();
+    var visible = [];
     tabs.querySelectorAll('button').forEach(function (b) {
       if (b.classList.contains('nhb-hidden') || b.style.display === 'none') return;
+      visible.push(b);
+    });
+    var useTiers = visible.some(function (b) { return b.getAttribute('data-nav-tier') === 'primary'; });
+    var primary = useTiers
+      ? visible.filter(function (b) { return b.getAttribute('data-nav-tier') === 'primary'; })
+      : visible;
+    var secondary = useTiers
+      ? visible.filter(function (b) { return b.getAttribute('data-nav-tier') !== 'primary'; })
+      : [];
+    function addNavBtn(b) {
       var nb = document.createElement('button');
       nb.type = 'button';
       nb.setAttribute('data-tab', b.getAttribute('data-tab'));
@@ -1310,12 +1462,27 @@ function nhbBindBottomNav(tabsSel, bottomSel) {
       );
       nb.innerHTML = nhbNavButtonHtml(iconKey, label);
       nb.onclick = function () {
+        closeMore();
         b.click();
         document.body.classList.remove('nhb-nav-open');
         sync();
       };
       bottom.appendChild(nb);
-    });
+    }
+    primary.forEach(addNavBtn);
+    if (secondary.length) {
+      var moreBtn = document.createElement('button');
+      moreBtn.type = 'button';
+      moreBtn.setAttribute('data-icon', 'more');
+      var secActive = secondary.some(function (b) { return b.classList.contains('active'); });
+      moreBtn.className = secActive ? 'active' : '';
+      moreBtn.innerHTML = nhbNavButtonHtml('more', t('tab_more'));
+      moreBtn.onclick = function () {
+        if (moreSheet.classList.contains('nhb-hidden')) openMore(secondary);
+        else closeMore();
+      };
+      bottom.appendChild(moreBtn);
+    }
   }
   function sync() {
     if (syncTimer) clearTimeout(syncTimer);
