@@ -1,5 +1,4 @@
-/* COPIE de shared/ — editer shared/ puis sync */
-/**
+﻿/**
  * NHALABENE / AGENCIAS — CONFIGURATION v1.5.6
  * Priorité : AGENCIAS_API_URL dans index.html, sinon API_URL ci-dessous.
  */
@@ -8,7 +7,7 @@ var AGENCIAS_CONFIG = {
     ? AGENCIAS_API_URL
     : 'https://script.google.com/macros/s/AKfycbym0EOCpYVyQQb0DyhxWGbgmfnCbVLhSBcw4b05qEQSG_kUnu0vJ7iiaw3fGkp-qFCv1Q/exec',
 
-  VERSION: '1.5.7',
+  VERSION: '1.6.1',
   PRODUCT: 'Nhalabene',
   ARCHITECTURE: 'option-2-fournisseur',
   ASSETS_BASE: './assets/',

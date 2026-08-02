@@ -116,7 +116,10 @@
   <header class="nhb-header nhb-app-only">
     <div class="nhb-brand">
       <div class="nhb-brand-logo" id="brandLogo"></div>
-      <h1 id="brandTitle">Nhalabene</h1>
+      <div class="nhb-brand-text">
+        <h1 id="brandTitle">Nhalabene</h1>
+        <p class="nhb-brand-sub nhb-hidden" id="brandAgencySub"></p>
+      </div>
     </div>
     <div id="nhbChrome"></div>
     <div class="nhb-header-actions">
@@ -391,9 +394,13 @@
       userId: sessionStorage.getItem('agencias_hotel_userId') || '',
       hotelId: sessionStorage.getItem('agencias_hotel_hotelId') || '',
       agencyId: sessionStorage.getItem('agencias_hotel_agencyId') || '',
+      agencyNom: sessionStorage.getItem('agencias_hotel_agencyNom') || '',
       nom: sessionStorage.getItem('agencias_hotel_nom') || '',
       hotelPolicy: (function () {
         try { return JSON.parse(sessionStorage.getItem('agencias_hotel_policy') || 'null'); } catch (e) { return null; }
+      })(),
+      brandingCache: (function () {
+        try { return JSON.parse(sessionStorage.getItem('agencias_hotel_branding') || 'null'); } catch (e) { return null; }
       })()
     };
     var prixTimer = null;
@@ -416,15 +423,61 @@
       });
     }
 
-    function brandName() {
-      return document.getElementById('brandTitle').textContent || 'Nhalabene';
-    }
-
     function applyBrand(brand) {
-      agenciasApplyBranding(brand || { mode: 'standard' }, {
+      var applied = agenciasApplyBranding(brand || { mode: 'standard' }, {
         titleEl: document.getElementById('brandTitle'),
         logoEl: document.getElementById('brandLogo')
       });
+      /* Nom seul : initiale dans le carré logo, nom complet dans le titre (pas de doublon) */
+      if (applied && applied.nameOnly) {
+        var logoEl = document.getElementById('brandLogo');
+        var letter = String(applied.nomAffiche || '?').replace(/^\s+/, '').charAt(0).toUpperCase() || '?';
+        if (logoEl) {
+          logoEl.innerHTML = '<span class="nhb-brand-initial" aria-hidden="true">' + letter + '</span>';
+        }
+      }
+      var sub = document.getElementById('brandAgencySub');
+      if (sub) {
+        var agencyNom = (brand && (brand.agencyNom || brand.nomInterne)) || state.agencyNom || '';
+        if (agencyNom && applied && applied.nomAffiche &&
+            String(agencyNom).toLowerCase() !== String(applied.nomAffiche).toLowerCase()) {
+          sub.textContent = (typeof t === 'function' ? t('hotel_agency_of') : 'Agência') + ': ' + agencyNom;
+          sub.classList.remove('nhb-hidden');
+        } else if (agencyNom && applied && applied.nameOnly) {
+          /* titre = nom agence → sous-titre = hôtel */
+          var hotelNom = state.nom || state.userId || '';
+          if (hotelNom) {
+            sub.textContent = hotelNom;
+            sub.classList.remove('nhb-hidden');
+          } else {
+            sub.textContent = '';
+            sub.classList.add('nhb-hidden');
+          }
+        } else {
+          sub.textContent = '';
+          sub.classList.add('nhb-hidden');
+        }
+      }
+      try {
+        if (brand) sessionStorage.setItem('agencias_hotel_branding', JSON.stringify(brand));
+      } catch (e) { /* ignore */ }
+      return applied;
+    }
+
+    function refreshWhoLine() {
+      var hotelNom = state.nom || state.userId || '';
+      var agencyNom = state.agencyNom || '';
+      var who = document.getElementById('who');
+      if (!who) return;
+      if (agencyNom) {
+        who.textContent = hotelNom + ' · ' + (typeof t === 'function' ? t('hotel_agency_of') : 'Agência') + ' ' + agencyNom;
+      } else {
+        who.textContent = hotelNom + ' · HOTEL';
+      }
+    }
+
+    function brandName() {
+      return document.getElementById('brandTitle').textContent || 'Nhalabene';
     }
 
     function badge(st) {
@@ -523,11 +576,22 @@
       nhbSetAuthScreen(false);
       document.getElementById('view-app').classList.remove('nhb-hidden');
       document.getElementById('btnLogout').classList.remove('nhb-hidden');
-      document.getElementById('who').textContent = (state.nom || state.userId) + ' · HOTEL';
-      applyBrand(brand);
-      if (!brand && state.agencyId) {
+      refreshWhoLine();
+      var brandToApply = brand || state.brandingCache || null;
+      applyBrand(brandToApply || { mode: 'standard' });
+      if (!brandToApply && state.agencyId) {
         agenciasApi({ action: 'getBrandingAgence', agencyId: state.agencyId, token: state.token })
-          .then(function (d) { if (d.success) applyBrand(d.branding); });
+          .then(function (d) {
+            if (d.success) {
+              if (d.agencyNom) {
+                state.agencyNom = d.agencyNom;
+                sessionStorage.setItem('agencias_hotel_agencyNom', state.agencyNom);
+              }
+              state.brandingCache = d.branding;
+              applyBrand(d.branding);
+              refreshWhoLine();
+            }
+          });
       }
       loadPricePoints(true);
       applyHotelCreateGate();
@@ -552,13 +616,16 @@
         state.userId = data.userId;
         state.hotelId = data.hotelId || data.userId;
         state.agencyId = data.agencyId || '';
+        state.agencyNom = data.agencyNom || (data.branding && (data.branding.agencyNom || data.branding.nomInterne)) || '';
         state.nom = data.nom || '';
         state.hotelPolicy = data.hotelPolicy || (data.hotel && data.hotel.policy) || null;
+        state.brandingCache = data.branding || null;
         sessionStorage.setItem('agencias_hotel_token', state.token);
         sessionStorage.setItem('agencias_hotel_role', state.role);
         sessionStorage.setItem('agencias_hotel_userId', state.userId);
         sessionStorage.setItem('agencias_hotel_hotelId', state.hotelId);
         sessionStorage.setItem('agencias_hotel_agencyId', state.agencyId);
+        sessionStorage.setItem('agencias_hotel_agencyNom', state.agencyNom);
         sessionStorage.setItem('agencias_hotel_nom', state.nom);
         try {
           sessionStorage.setItem('agencias_hotel_policy', JSON.stringify(state.hotelPolicy || {}));
@@ -1058,9 +1125,10 @@
     document.getElementById('btnLogout').onclick = function () {
       agenciasApi({ action: 'logout', token: state.token });
       ['agencias_hotel_token', 'agencias_hotel_role', 'agencias_hotel_userId',
-        'agencias_hotel_hotelId', 'agencias_hotel_agencyId', 'agencias_hotel_nom']
+        'agencias_hotel_hotelId', 'agencias_hotel_agencyId', 'agencias_hotel_agencyNom',
+        'agencias_hotel_nom', 'agencias_hotel_branding', 'agencias_hotel_policy']
         .forEach(function (k) { sessionStorage.removeItem(k); });
-      state = { token: '', role: '', userId: '', hotelId: '', agencyId: '', nom: '' };
+      state = { token: '', role: '', userId: '', hotelId: '', agencyId: '', agencyNom: '', nom: '', hotelPolicy: null, brandingCache: null };
       pricePointsLoaded = false;
       showLogin();
     };
@@ -1134,9 +1202,10 @@
     window.nhbOnSessionInvalid = function () {
       try {
         ['agencias_hotel_token', 'agencias_hotel_role', 'agencias_hotel_userId',
-          'agencias_hotel_hotelId', 'agencias_hotel_agencyId', 'agencias_hotel_nom']
+          'agencias_hotel_hotelId', 'agencias_hotel_agencyId', 'agencias_hotel_agencyNom',
+          'agencias_hotel_nom', 'agencias_hotel_branding', 'agencias_hotel_policy']
           .forEach(function (k) { sessionStorage.removeItem(k); });
-        state = { token: '', role: '', userId: '', hotelId: '', agencyId: '', nom: '' };
+        state = { token: '', role: '', userId: '', hotelId: '', agencyId: '', agencyNom: '', nom: '', hotelPolicy: null, brandingCache: null };
         nhbToast(t('session_expired'), 'err');
         showLogin();
       } catch (e) { /* ignore */ }
