@@ -66,16 +66,18 @@
         <p class="nhb-login-hint" data-i18n="hotel_login_hint">
           Crie reservas para os seus clientes. A agência confirma depois. Login = ID do hotel + palavra-passe.
         </p>
+        <form id="loginForm" autocomplete="on">
         <div class="nhb-field">
           <label for="login" data-i18n="login_id">Identificador (ID)</label>
-          <input class="nhb-input" id="login" placeholder="HTL…" autocomplete="username" />
+          <input class="nhb-input" id="login" placeholder="HTL…" autocomplete="username" required />
         </div>
         <div class="nhb-field">
           <label for="pass" data-i18n="password">Palavra-passe</label>
-          <input class="nhb-input" id="pass" type="password" autocomplete="current-password" />
+          <input class="nhb-input" id="pass" type="password" autocomplete="current-password" required />
         </div>
-        <button type="button" class="nhb-btn-primary" id="btnLogin"><span class="sp"></span><span class="btn-t" data-i18n="login">Entrar</span></button>
+        <button type="submit" class="nhb-btn-primary" id="btnLogin"><span class="sp"></span><span class="btn-t" data-i18n="login">Entrar</span></button>
         <div class="nhb-msg" id="loginMsg"></div>
+        </form>
         <button type="button" class="nhb-toggle-link" id="btnShowReset" data-i18n="forgot_link">Esqueci a palavra-passe</button>
       </div>
       <div id="step-reset" class="nhb-hidden">
@@ -447,6 +449,27 @@
       document.getElementById('who').textContent = '';
       applyBrand({ mode: 'standard' });
     }
+
+    agenciasBindLoginForm({
+      expectRole: 'HOTEL',
+      wrongRoleKey: 'hotel_only',
+      onSuccess: function (data) {
+        state.token = data.token;
+        state.role = data.role;
+        state.userId = data.userId;
+        state.hotelId = data.hotelId || data.userId;
+        state.agencyId = data.agencyId || '';
+        state.nom = data.nom || '';
+        sessionStorage.setItem('agencias_hotel_token', state.token);
+        sessionStorage.setItem('agencias_hotel_role', state.role);
+        sessionStorage.setItem('agencias_hotel_userId', state.userId);
+        sessionStorage.setItem('agencias_hotel_hotelId', state.hotelId);
+        sessionStorage.setItem('agencias_hotel_agencyId', state.agencyId);
+        sessionStorage.setItem('agencias_hotel_nom', state.nom);
+        pricePointsLoaded = false;
+        showApp(data.branding);
+      }
+    });
 
     function calcPrix() {
       var origine = document.getElementById('r-origine').value.trim();
@@ -822,46 +845,6 @@
       document.getElementById('prefsMsg').className = 'nhb-msg ok';
       document.getElementById('prefsMsg').textContent = t('settings_saved');
       nhbToast(t('settings_saved'), 'ok');
-    };
-
-    document.getElementById('btnLogin').onclick = function () {
-      var btn = document.getElementById('btnLogin');
-      var msg = document.getElementById('loginMsg');
-      msg.className = 'nhb-msg';
-      msg.textContent = t('connecting');
-      btn.classList.add('loading');
-      btn.disabled = true;
-      agenciasApi({
-        action: 'login',
-        login: document.getElementById('login').value,
-        password: document.getElementById('pass').value
-      }).then(function (data) {
-        if (data.success && data.role === 'HOTEL') {
-          state.token = data.token;
-          state.role = data.role;
-          state.userId = data.userId;
-          state.hotelId = data.hotelId || data.userId;
-          state.agencyId = data.agencyId || '';
-          state.nom = data.nom || '';
-          sessionStorage.setItem('agencias_hotel_token', state.token);
-          sessionStorage.setItem('agencias_hotel_role', state.role);
-          sessionStorage.setItem('agencias_hotel_userId', state.userId);
-          sessionStorage.setItem('agencias_hotel_hotelId', state.hotelId);
-          sessionStorage.setItem('agencias_hotel_agencyId', state.agencyId);
-          sessionStorage.setItem('agencias_hotel_nom', state.nom);
-          pricePointsLoaded = false;
-          showApp(data.branding);
-        } else {
-          msg.className = 'nhb-msg err';
-          msg.textContent = data.error || t('hotel_only');
-        }
-      }).catch(function () {
-        msg.className = 'nhb-msg err';
-        msg.textContent = t('api_error');
-      }).finally(function () {
-        btn.classList.remove('loading');
-        btn.disabled = false;
-      });
     };
 
     document.getElementById('btnShowReset').onclick = function () {

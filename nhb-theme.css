@@ -461,13 +461,14 @@ body:not(.nhb-on-login) .nhb-login-screen { display: none !important; }
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: max(1.25rem, env(safe-area-inset-top))
+  justify-content: flex-start;
+  padding: max(0.75rem, env(safe-area-inset-top))
     max(1rem, env(safe-area-inset-right))
     max(1.25rem, env(safe-area-inset-bottom))
     max(1rem, env(safe-area-inset-left));
   position: relative;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
   background: linear-gradient(135deg, #0d2137 0%, #1b4f72 100%);
 }
 .nhb-login-screen::before,
@@ -489,18 +490,17 @@ body:not(.nhb-on-login) .nhb-login-screen { display: none !important; }
 }
 
 .nhb-login-top {
-  position: absolute;
-  top: max(0.75rem, env(safe-area-inset-top));
-  left: max(0.75rem, env(safe-area-inset-left));
-  right: max(0.75rem, env(safe-area-inset-right));
+  position: relative;
   z-index: 5;
+  width: 100%;
+  max-width: 420px;
   display: flex;
   justify-content: flex-end;
   align-items: center;
   gap: 0.5rem;
   flex-wrap: wrap;
-  /* Ne pas bloquer les clics sur le formulaire en dessous */
-  pointer-events: none;
+  margin: 0 0 0.85rem;
+  flex-shrink: 0;
 }
 .nhb-login-top #nhbLoginChrome {
   display: flex;
@@ -508,7 +508,7 @@ body:not(.nhb-on-login) .nhb-login-screen { display: none !important; }
   gap: 0.45rem;
   flex-wrap: wrap;
   justify-content: flex-end;
-  pointer-events: auto;
+  width: 100%;
 }
 
 .nhb-login-box {
@@ -518,12 +518,12 @@ body:not(.nhb-on-login) .nhb-login-screen { display: none !important; }
   color: #0d2137;
   border-radius: 22px;
   padding: 2rem 1.65rem 1.5rem;
-  /* Laisse de la place sous la barre langue/thème (évite chevauchement mobile) */
-  margin-top: 3.25rem;
+  margin: 0 auto auto;
   box-shadow: 0 24px 64px rgba(0, 0, 0, 0.35);
   position: relative;
   z-index: 1;
   animation: nhbFadeUp 0.45s ease;
+  flex-shrink: 0;
 }
 html[data-theme="dark"] .nhb-login-box {
   background: #152031;
@@ -900,11 +900,7 @@ html[data-theme="light"] body.hub-page .nhb-theme-pick.active {
   .nhb-lang-select-mobile { display: inline-flex; }
   .nhb-login-box { padding: 1.5rem 1.1rem 1.15rem; border-radius: 18px; }
   .nhb-theme-pick { width: 44px; height: 44px; }
-  .nhb-login-top {
-    justify-content: stretch;
-  }
   .nhb-login-top #nhbLoginChrome {
-    width: 100%;
     justify-content: space-between;
   }
 }
