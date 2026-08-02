@@ -56,7 +56,7 @@
     <div class="nhb-login-top"><div id="nhbLoginChrome"></div></div>
     <div class="nhb-login-box">
       <div class="nhb-login-brand">
-        <div class="nhb-login-emblem"><img src="assets/icon_carre_512.png" alt="" /></div>
+        <div class="nhb-login-emblem"><img src="assets/icon_n_512.svg" alt="Nhalabene" onerror="this.onerror=null;this.outerHTML='&lt;svg class=&quot;nhb-mono-n&quot; viewBox=&quot;0 0 64 64&quot; width=&quot;64&quot; height=&quot;64&quot; aria-hidden=&quot;true&quot;&gt;&lt;rect width=&quot;64&quot; height=&quot;64&quot; rx=&quot;14&quot; fill=&quot;#0d2137&quot;/&gt;&lt;text x=&quot;32&quot; y=&quot;44&quot; text-anchor=&quot;middle&quot; font-family=&quot;Georgia,serif&quot; font-size=&quot;36&quot; font-weight=&quot;700&quot; fill=&quot;#c9a84c&quot;&gt;N&lt;/text&gt;&lt;/svg&gt;'" /></div>
         <p class="nhb-login-name" id="loginBrandName">Nhalabene</p>
         <p class="nhb-login-sub" data-i18n="login_sub_hotel">Lisboa · Portal hotel</p>
       </div>
@@ -265,6 +265,7 @@
         </div>
         <label class="nhb-label" data-i18n="comments">Comentários</label>
         <textarea class="nhb-textarea" id="r-commentaires"></textarea>
+        <label class="nhb-notify-row"><input type="checkbox" id="r-notify-email" checked /> <span data-i18n="notify_email">Notificar por email</span></label>
 
         <div class="prix-box">
           <span class="nhb-meta" style="margin:0" data-i18n="price_calc">Preço calculado (indicativo)</span>
@@ -316,6 +317,7 @@
             </select>
           </div>
         </div>
+        <div id="nhbExtraPrefs"></div>
         <button type="button" class="nhb-btn" id="btnSavePrefs" data-i18n="save">Guardar</button>
         <div class="nhb-msg" id="prefsMsg" aria-live="polite"></div>
       </div>
@@ -421,10 +423,14 @@
     }
 
     function loadPrefsForm() {
-      var p = nhbPrefsGet('hotel');
-      document.getElementById('pref-lang').value = p.lang || (typeof NHB_LANG !== 'undefined' ? NHB_LANG : 'pt');
-      document.getElementById('pref-density').value = p.density === 'compact' ? 'compact' : 'comfortable';
-      document.getElementById('pref-currency').value = p.currency || 'EUR';
+      var host = document.getElementById('nhbExtraPrefs');
+      if (host && !host.getAttribute('data-ready')) {
+        host.innerHTML = nhbExtraSettingsHtml();
+        host.setAttribute('data-ready', '1');
+        nhbBindExtraSettings('hotel');
+        nhbApplyI18n(host);
+      }
+      nhbFillPrefsForm('hotel');
     }
 
     function showApp(brand) {
@@ -558,7 +564,7 @@
       if (isPendente) {
         html += '<button type="button" class="' + cls + '" data-cancel="' + esc(r.id) + '">' + esc(t('cancel_own')) + '</button>';
       }
-      if (r.telephone) {
+      if (r.telephone && nhbWaActive('hotel')) {
         html += '<a class="' + cls + '" href="' + esc(nhbWhatsAppUrl(r.telephone, nhbResaWhatsAppText(r, brand))) +
           '" target="_blank" rel="noopener">' + esc(t('whatsapp')) + '</a>';
       }
@@ -777,6 +783,8 @@
       document.getElementById('prixAutoDisplay').textContent = '—';
       document.getElementById('prixMatchHint').textContent = t('price_hint');
       lastPrixAuto = null;
+      var n = document.getElementById('r-notify-email');
+      if (n) n.checked = nhbWantEmailNotify('hotel', 'new');
     }
 
     applyBrand({ mode: 'standard' });
@@ -834,14 +842,11 @@
       }, 250);
     });
     document.getElementById('btnSavePrefs').onclick = function () {
-      var prefs = {
-        lang: document.getElementById('pref-lang').value,
-        density: document.getElementById('pref-density').value,
-        currency: document.getElementById('pref-currency').value
-      };
+      var prefs = nhbReadPrefsForm('hotel');
       nhbPrefsSet('hotel', prefs);
       nhbApplyPrefs('hotel');
-      if (prefs.lang && typeof setLang === 'function') setLang(prefs.lang);
+      if (prefs.lang && typeof nhbSetLang === 'function') nhbSetLang(prefs.lang);
+      else if (prefs.lang && typeof setLang === 'function') setLang(prefs.lang);
       document.getElementById('prefsMsg').className = 'nhb-msg ok';
       document.getElementById('prefsMsg').textContent = t('settings_saved');
       nhbToast(t('settings_saved'), 'ok');
@@ -875,6 +880,7 @@
       var msg = document.getElementById('createMsg');
       msg.className = 'nhb-msg';
       msg.textContent = t('creating');
+      var notifyEl = document.getElementById('r-notify-email');
       agenciasApi({
         action: 'creerReservation',
         token: state.token,
@@ -890,7 +896,8 @@
         malas: document.getElementById('r-malas').value,
         numVol: document.getElementById('r-vol').value.trim(),
         numChambre: document.getElementById('r-chambre').value.trim(),
-        commentaires: document.getElementById('r-commentaires').value.trim()
+        commentaires: document.getElementById('r-commentaires').value.trim(),
+        notifyEmail: notifyEl ? !!notifyEl.checked : nhbWantEmailNotify('hotel', 'new')
       }).then(function (data) {
         if (data.success) {
           msg.className = 'nhb-msg ok';
@@ -933,6 +940,17 @@
         msg.textContent = t('api_error');
         nhbToast(t('api_error'), 'err');
       });
+    };
+
+    window.nhbOnSessionInvalid = function () {
+      try {
+        ['agencias_hotel_token', 'agencias_hotel_role', 'agencias_hotel_userId',
+          'agencias_hotel_hotelId', 'agencias_hotel_agencyId', 'agencias_hotel_nom']
+          .forEach(function (k) { sessionStorage.removeItem(k); });
+        state = { token: '', role: '', userId: '', hotelId: '', agencyId: '', nom: '' };
+        nhbToast(t('session_expired'), 'err');
+        showLogin();
+      } catch (e) { /* ignore */ }
     };
 
     nhbInitChrome({ defaultLang: 'pt' });

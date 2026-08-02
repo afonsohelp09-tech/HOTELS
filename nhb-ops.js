@@ -1,4 +1,4 @@
-/* COPIE de shared/ — editer shared/ puis sync */
+﻿/* COPIE de shared/ — editer shared/ puis sync */
 /** Nhalabene ops helpers — toast, WA, calendar, excel, empty state */
 function nhbToast(msg, type) {
   type = type || 'default'; // default|ok|err|warn
@@ -122,12 +122,135 @@ function nhbPrefsSet(scope, obj) {
 }
 function nhbApplyPrefs(scope) {
   var p = nhbPrefsGet(scope);
-  if (p.lang && typeof setLang === 'function') {
-    try { setLang(p.lang); } catch (e) { /* ignore */ }
+  if (p.lang && typeof nhbSetLang === 'function') {
+    try { nhbSetLang(p.lang); } catch (e) { /* ignore */ }
+  } else if (p.lang && typeof setLang === 'function') {
+    try { setLang(p.lang); } catch (e2) { /* ignore */ }
   }
   document.documentElement.setAttribute('data-density', p.density === 'compact' ? 'compact' : 'comfortable');
+  document.documentElement.setAttribute('data-text-size', p.textSize === 'large' ? 'large' : 'normal');
   if (p.currency) document.documentElement.setAttribute('data-currency', p.currency);
+
+  /* Fond de travail (style Staff Plan B) — hors écran login */
+  var bg = (p.workBg || '').trim();
+  if (bg && /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(bg)) {
+    document.documentElement.style.setProperty('--nhb-work-bg', bg);
+    document.body.classList.add('nhb-has-work-bg');
+  } else {
+    document.documentElement.style.removeProperty('--nhb-work-bg');
+    document.body.classList.remove('nhb-has-work-bg');
+  }
   return p;
+}
+
+/** Lit les champs Paramètres étendus (#pref-*) */
+function nhbReadPrefsForm(scope) {
+  var p = nhbPrefsGet(scope) || {};
+  var el = function (id) { return document.getElementById(id); };
+  if (el('pref-lang')) p.lang = el('pref-lang').value;
+  if (el('pref-density')) p.density = el('pref-density').value;
+  if (el('pref-currency')) p.currency = el('pref-currency').value;
+  if (el('pref-text-size')) p.textSize = el('pref-text-size').value;
+  if (el('pref-work-bg')) p.workBg = el('pref-work-bg').value || '';
+  if (el('pref-wa-numbers')) p.waNumbers = el('pref-wa-numbers').value.trim();
+  if (el('pref-wa-group')) p.waGroup = el('pref-wa-group').value.trim();
+  if (el('pref-wa-active')) p.waActive = !!el('pref-wa-active').checked;
+  if (el('pref-email-new-resa')) p.emailNewResa = !!el('pref-email-new-resa').checked;
+  if (el('pref-email-confirm')) p.emailConfirm = !!el('pref-email-confirm').checked;
+  return p;
+}
+
+function nhbFillPrefsForm(scope) {
+  var p = nhbPrefsGet(scope) || {};
+  var el = function (id) { return document.getElementById(id); };
+  if (el('pref-lang')) el('pref-lang').value = p.lang || (typeof NHB_LANG !== 'undefined' ? NHB_LANG : 'pt');
+  if (el('pref-density')) el('pref-density').value = p.density === 'compact' ? 'compact' : 'comfortable';
+  if (el('pref-currency')) el('pref-currency').value = p.currency || 'EUR';
+  if (el('pref-text-size')) el('pref-text-size').value = p.textSize === 'large' ? 'large' : 'normal';
+  if (el('pref-work-bg')) el('pref-work-bg').value = p.workBg || '';
+  if (el('pref-work-bg-hex')) el('pref-work-bg-hex').value = p.workBg || '#0b1623';
+  if (el('pref-wa-numbers')) el('pref-wa-numbers').value = p.waNumbers || '';
+  if (el('pref-wa-group')) el('pref-wa-group').value = p.waGroup || '';
+  if (el('pref-wa-active')) el('pref-wa-active').checked = p.waActive !== false;
+  if (el('pref-email-new-resa')) el('pref-email-new-resa').checked = p.emailNewResa !== false;
+  if (el('pref-email-confirm')) el('pref-email-confirm').checked = p.emailConfirm !== false;
+}
+
+/** HTML blocs Paramètres communs (fond, texte, WA, email) */
+function nhbExtraSettingsHtml() {
+  return (
+    '<div class="nhb-row2">' +
+      '<div><label class="nhb-label" for="pref-text-size" data-i18n="settings_text_size">Taille du texte</label>' +
+      '<select class="nhb-select" id="pref-text-size">' +
+        '<option value="normal" data-i18n="settings_text_normal">Normal</option>' +
+        '<option value="large" data-i18n="settings_text_large">Grand</option>' +
+      '</select></div>' +
+      '<div><label class="nhb-label" for="pref-work-bg" data-i18n="settings_work_bg">Couleur de fond (travail)</label>' +
+      '<div class="nhb-bg-row">' +
+        '<input type="color" id="pref-work-bg-hex" value="#0b1623" aria-label="Couleur" />' +
+        '<input class="nhb-input" id="pref-work-bg" placeholder="#0b1623 ou vide" />' +
+        '<button type="button" class="nhb-btn ghost" id="pref-work-bg-reset" data-i18n="settings_bg_reset">Reset</button>' +
+      '</div>' +
+      '<div class="nhb-bg-presets" id="pref-work-bg-presets" role="group">' +
+        '<button type="button" class="nhb-bg-swatch" data-bg="#0b1623" title="Navy"></button>' +
+        '<button type="button" class="nhb-bg-swatch" data-bg="#152031" title="Slate"></button>' +
+        '<button type="button" class="nhb-bg-swatch" data-bg="#1a2332" title="Blue gray"></button>' +
+        '<button type="button" class="nhb-bg-swatch" data-bg="#EEF2F7" title="Clair"></button>' +
+        '<button type="button" class="nhb-bg-swatch" data-bg="#f4f0e8" title="Crème"></button>' +
+        '<button type="button" class="nhb-bg-swatch" data-bg="#e8f0ec" title="Menthe"></button>' +
+      '</div></div>' +
+    '</div>' +
+    '<h3 class="nhb-settings-h" data-i18n="settings_wa_title">WhatsApp</h3>' +
+    '<label class="nhb-check"><input type="checkbox" id="pref-wa-active" checked /> <span data-i18n="settings_wa_active">Activer WhatsApp</span></label>' +
+    '<label class="nhb-label" for="pref-wa-numbers" data-i18n="settings_wa_numbers">Numéros (un par ligne)</label>' +
+    '<textarea class="nhb-textarea" id="pref-wa-numbers" rows="2" placeholder="+3519…"></textarea>' +
+    '<label class="nhb-label" for="pref-wa-group" data-i18n="settings_wa_group">Lien groupe (chat.whatsapp.com)</label>' +
+    '<input class="nhb-input" id="pref-wa-group" placeholder="https://chat.whatsapp.com/…" />' +
+    '<h3 class="nhb-settings-h" data-i18n="settings_email_title">Notifications email</h3>' +
+    '<label class="nhb-check"><input type="checkbox" id="pref-email-new-resa" checked /> <span data-i18n="settings_email_new">Recevoir / envoyer email nouvelle réservation</span></label>' +
+    '<label class="nhb-check"><input type="checkbox" id="pref-email-confirm" checked /> <span data-i18n="settings_email_confirm">Notifier par email à la confirmation</span></label>'
+  );
+}
+
+function nhbBindExtraSettings(scope) {
+  var hex = document.getElementById('pref-work-bg-hex');
+  var txt = document.getElementById('pref-work-bg');
+  var reset = document.getElementById('pref-work-bg-reset');
+  var presets = document.getElementById('pref-work-bg-presets');
+  if (hex && txt) {
+    hex.oninput = function () { txt.value = hex.value; };
+    txt.oninput = function () {
+      if (/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(txt.value.trim())) hex.value = txt.value.trim();
+    };
+  }
+  if (reset) {
+    reset.onclick = function () {
+      if (txt) txt.value = '';
+      nhbApplyPrefs(scope);
+    };
+  }
+  if (presets) {
+    presets.querySelectorAll('[data-bg]').forEach(function (b) {
+      b.style.background = b.getAttribute('data-bg');
+      b.onclick = function () {
+        var c = b.getAttribute('data-bg');
+        if (txt) txt.value = c;
+        if (hex) hex.value = c;
+      };
+    });
+  }
+}
+
+/** Prefs email pour actions résa (défaut true) */
+function nhbWantEmailNotify(scope, key) {
+  var p = nhbPrefsGet(scope) || {};
+  if (key === 'confirm') return p.emailConfirm !== false;
+  return p.emailNewResa !== false;
+}
+
+function nhbWaActive(scope) {
+  var p = nhbPrefsGet(scope) || {};
+  return p.waActive !== false;
 }
 function nhbFormatMoney(n, scope) {
   var cur = (nhbPrefsGet(scope).currency) || 'EUR';

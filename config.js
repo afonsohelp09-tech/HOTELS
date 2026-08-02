@@ -1,33 +1,42 @@
-/* COPIE de shared/ — editer shared/ puis sync */
+﻿/* COPIE de shared/ — editer shared/ puis sync */
 /**
- * â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
- *  NHALABENE / AGENCIAS â€” CONFIGURATION PROFESSIONNELLE v1.5.1
- *  PrioritÃ© : AGENCIAS_API_URL dans index.html, sinon API_URL ci-dessous.
- * â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+ * NHALABENE / AGENCIAS — CONFIGURATION v1.5.4
+ * Priorité : AGENCIAS_API_URL dans index.html, sinon API_URL ci-dessous.
  */
 var AGENCIAS_CONFIG = {
-  /* â–¼â–¼â–¼  URL API Apps Script (/exec)  â–¼â–¼â–¼ */
   API_URL: (typeof AGENCIAS_API_URL !== 'undefined' && AGENCIAS_API_URL)
     ? AGENCIAS_API_URL
     : 'https://script.google.com/macros/s/AKfycbym0EOCpYVyQQb0DyhxWGbgmfnCbVLhSBcw4b05qEQSG_kUnu0vJ7iiaw3fGkp-qFCv1Q/exec',
-  /* â–²â–²â–²â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â–²â–²â–² */
 
-  VERSION: '1.5.3',
+  VERSION: '1.5.4',
   PRODUCT: 'Nhalabene',
   ARCHITECTURE: 'option-2-fournisseur',
   ASSETS_BASE: './assets/',
   FETCH_TIMEOUT_MS: 45000,
   BRAND_STANDARD: {
     NOM: 'Nhalabene',
-    LOGO_FILE: 'icon_carre_192.png',
-    LOGO_FILE_LG: 'icon_carre_512.png',
+    LOGO_FILE: 'icon_n.svg',
+    LOGO_FILE_LG: 'icon_n_512.svg',
     LOGO_HORIZONTAL: 'logo_horizontal_sombre_M.png'
   }
 };
 
+var NHB_MONOGRAM_SVG =
+  '<svg class="nhb-mono-n" viewBox="0 0 64 64" width="40" height="40" aria-hidden="true">' +
+  '<rect width="64" height="64" rx="14" fill="#0d2137"/>' +
+  '<text x="32" y="44" text-anchor="middle" font-family="Georgia,serif" font-size="36" font-weight="700" fill="#c9a84c">N</text>' +
+  '</svg>';
+
 function agenciasStandardLogoUrl(file) {
   var f = file || AGENCIAS_CONFIG.BRAND_STANDARD.LOGO_FILE;
   return AGENCIAS_CONFIG.ASSETS_BASE + f;
+}
+
+function agenciasLogoImgHtml(src, nom) {
+  var safeSrc = String(src || '').replace(/"/g, '');
+  var safeNom = String(nom || 'Nhalabene').replace(/"/g, '');
+  return '<img src="' + safeSrc + '" alt="' + safeNom + '" ' +
+    "onerror='this.onerror=null;this.outerHTML=" + JSON.stringify(NHB_MONOGRAM_SVG) + ";' />";
 }
 
 function agenciasApplyBranding(brand, opts) {
@@ -36,7 +45,8 @@ function agenciasApplyBranding(brand, opts) {
   var mode = String(b.mode || 'standard').toLowerCase();
   var customLogo = (b.logoUrl || '').trim();
   var customNom = (b.nomAffiche || '').trim();
-  var useStandardVisual = mode === 'standard' || !customLogo || /^assets\//i.test(customLogo);
+  var useStandardVisual = mode === 'standard' || !customLogo ||
+    /^assets\//i.test(customLogo) || /icon_carre_/i.test(customLogo) || /icon_n(_|\.)/i.test(customLogo);
 
   var nom = mode === 'standard'
     ? AGENCIAS_CONFIG.BRAND_STANDARD.NOM
@@ -47,21 +57,34 @@ function agenciasApplyBranding(brand, opts) {
 
   if (opts.titleEl) opts.titleEl.textContent = nom;
   if (opts.logoEl) {
-    opts.logoEl.innerHTML = '<img src="' + logo.replace(/"/g, '') + '" alt="' + String(nom).replace(/"/g, '') + '" />';
+    opts.logoEl.innerHTML = agenciasLogoImgHtml(logo, nom);
   }
   if (opts.horizontalEl) {
     var hz = useStandardVisual
       ? agenciasStandardLogoUrl(AGENCIAS_CONFIG.BRAND_STANDARD.LOGO_HORIZONTAL)
       : logo;
-    opts.horizontalEl.innerHTML = '<img src="' + hz.replace(/"/g, '') + '" alt="' + String(nom).replace(/"/g, '') + '" />';
+    opts.horizontalEl.innerHTML = agenciasLogoImgHtml(hz, nom);
   }
   return { nomAffiche: nom, logoUrl: logo, mode: mode };
+}
+
+/** Callback global optionnel : window.nhbOnSessionInvalid = function(){} */
+function agenciasHandleSessionError_(data) {
+  var err = data && data.error ? String(data.error) : '';
+  if (!/Session invalide|Session expirée|Session expiree|token manquant/i.test(err)) return false;
+  try {
+    if (typeof nhbToast === 'function') nhbToast(err, 'err');
+  } catch (e) { /* ignore */ }
+  if (typeof window.nhbOnSessionInvalid === 'function') {
+    try { window.nhbOnSessionInvalid(err); } catch (e2) { /* ignore */ }
+  }
+  return true;
 }
 
 function agenciasApi(body) {
   var url = AGENCIAS_CONFIG.API_URL || '';
   if (!url || /COLLER_URL/i.test(url)) {
-    return Promise.reject(new Error('API_URL manquante â€” collez lâ€™URL /exec Apps Script'));
+    return Promise.reject(new Error('API_URL manquante — collez l’URL /exec Apps Script'));
   }
   if (typeof location !== 'undefined' && location.protocol === 'file:') {
     return Promise.reject(new Error(
@@ -90,27 +113,29 @@ function agenciasApi(body) {
         data = txt ? JSON.parse(txt) : null;
       } catch (e) {
         throw new Error(
-          'RÃ©ponse API non-JSON (dÃ©ploiement /exec ?). HTTP ' + r.status +
-          (txt ? ' â€” ' + String(txt).slice(0, 80) : '')
+          'Réponse API non-JSON (déploiement /exec ?). HTTP ' + r.status +
+          (txt ? ' — ' + String(txt).slice(0, 80) : '')
         );
       }
       if (!r.ok && (!data || data.success !== true)) {
         throw new Error((data && data.error) || ('HTTP ' + r.status));
       }
-      return data || { success: false, error: 'RÃ©ponse vide' };
+      data = data || { success: false, error: 'Réponse vide' };
+      if (data && data.success === false) agenciasHandleSessionError_(data);
+      return data;
     });
   }).catch(function (err) {
     if (timer) clearTimeout(timer);
     if (err && (err.name === 'AbortError' || /aborted/i.test(String(err.message || err)))) {
-      throw new Error('DÃ©lai dÃ©passÃ© (45s) â€” vÃ©rifiez Apps Script / rÃ©seau');
+      throw new Error('Délai dépassé (45s) — vérifiez Apps Script / réseau');
     }
     throw err;
   });
 }
 
 /**
- * Login form â€” attache tÃ´t (avant le reste de lâ€™UI) pour que Entrar / EntrÃ©e marchent toujours.
- * opts: { formId, btnId, msgId, loginId, passId, expectRole, onSuccess }
+ * Login form — Entrar / Entrée.
+ * opts: { formId, btnId, msgId, loginId, passId, expectRole, wrongRoleKey, onSuccess }
  */
 function agenciasBindLoginForm(opts) {
   opts = opts || {};
@@ -134,7 +159,7 @@ function agenciasBindLoginForm(opts) {
     }
     if (btn.disabled) return;
     msg.className = 'nhb-msg';
-    msg.textContent = (typeof t === 'function' ? t('connecting') : 'â€¦');
+    msg.textContent = (typeof t === 'function' ? t('connecting') : '…');
     setBusy(true);
     agenciasApi({
       action: 'login',
@@ -161,7 +186,6 @@ function agenciasBindLoginForm(opts) {
         ? String(detail)
         : ((typeof t === 'function' ? t('api_error') : null) || 'API error');
     }).then(function () {
-      /* always unlock â€” sauf si onSuccess a dÃ©jÃ  changÃ© dâ€™Ã©cran */
       if (document.body.classList.contains('nhb-on-login')) setBusy(false);
     }, function () { setBusy(false); });
   }
@@ -179,7 +203,7 @@ function agenciasBindLoginForm(opts) {
   return doLogin;
 }
 
-/** RÃ©cupÃ©ration MDP â€” helpers partagÃ©s */
+/** Récupération MDP — helpers partagés */
 function agenciasBindRecuperationMdp(prefix) {
   prefix = prefix || '';
   var btnAsk = document.getElementById(prefix + 'btnAskReset');
@@ -189,7 +213,7 @@ function agenciasBindRecuperationMdp(prefix) {
 
   btnAsk.onclick = function () {
     msg.className = 'nhb-msg';
-    msg.textContent = (typeof t === 'function') ? t('send_code') : 'â€¦';
+    msg.textContent = (typeof t === 'function') ? t('send_code') : '…';
     agenciasApi({
       action: 'demanderRecuperationMdp',
       login: document.getElementById(prefix + 'reset-login').value.trim()
@@ -197,8 +221,8 @@ function agenciasBindRecuperationMdp(prefix) {
       msg.className = 'nhb-msg ' + (data.success ? 'ok' : 'err');
       msg.textContent = data.success
         ? (data.message + (data.emailMasque ? ' (' + data.emailMasque + ')' : '') +
-          (data.userIdHint ? ' â€” login : ' + data.userIdHint : ''))
-        : (data.error || ((typeof t === 'function') ? t('fail') : 'Ã‰chec'));
+          (data.userIdHint ? ' — login : ' + data.userIdHint : ''))
+        : (data.error || ((typeof t === 'function') ? t('fail') : 'Échec'));
       if (data.userIdHint) {
         var uid = document.getElementById(prefix + 'reset-userid');
         if (uid) uid.value = data.userIdHint;
@@ -211,7 +235,7 @@ function agenciasBindRecuperationMdp(prefix) {
 
   btnConfirm.onclick = function () {
     msg.className = 'nhb-msg';
-    msg.textContent = (typeof t === 'function') ? t('saving') : 'â€¦';
+    msg.textContent = (typeof t === 'function') ? t('saving') : '…';
     agenciasApi({
       action: 'confirmerRecuperationMdp',
       userId: document.getElementById(prefix + 'reset-userid').value.trim(),
@@ -221,7 +245,7 @@ function agenciasBindRecuperationMdp(prefix) {
       msg.className = 'nhb-msg ' + (data.success ? 'ok' : 'err');
       msg.textContent = data.success
         ? (data.message || ((typeof t === 'function') ? t('pwd_updated') : 'OK'))
-        : (data.error || ((typeof t === 'function') ? t('fail') : 'Ã‰chec'));
+        : (data.error || ((typeof t === 'function') ? t('fail') : 'Échec'));
     }).catch(function () {
       msg.className = 'nhb-msg err';
       msg.textContent = (typeof t === 'function') ? t('api_error') : 'API error';

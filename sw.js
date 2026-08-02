@@ -1,5 +1,5 @@
-/* Nhalabene AGENCIAS SW v1.5.3 — network-first + shell offline */
-var CACHE = 'nhb-agencias-v1.5.3';
+﻿/* Nhalabene AGENCIAS SW v1.5.3 — network-first + shell offline */
+var CACHE = 'nhb-agencias-v1.5.4';
 var SHELL = [
   './',
   './index.html',
