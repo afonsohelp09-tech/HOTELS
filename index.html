@@ -609,6 +609,7 @@
 
     agenciasBindLoginForm({
       expectRole: 'HOTEL',
+      portal: 'hotel',
       wrongRoleKey: 'hotel_only',
       onSuccess: function (data) {
         state.token = data.token;

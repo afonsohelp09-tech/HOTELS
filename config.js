@@ -144,7 +144,7 @@ function agenciasApi(body) {
 
 /**
  * Login form — Entrar / Entrée.
- * opts: { formId, btnId, msgId, loginId, passId, expectRole, wrongRoleKey, onSuccess }
+ * opts: { formId, btnId, msgId, loginId, passId, expectRole, wrongRoleKey, portal, onSuccess }
  */
 function agenciasBindLoginForm(opts) {
   opts = opts || {};
@@ -170,11 +170,13 @@ function agenciasBindLoginForm(opts) {
     msg.className = 'nhb-msg';
     msg.textContent = (typeof t === 'function' ? t('connecting') : '…');
     setBusy(true);
-    agenciasApi({
+    var payload = {
       action: 'login',
       login: loginEl.value,
       password: passEl.value
-    }).then(function (data) {
+    };
+    if (opts.portal) payload.portal = opts.portal;
+    agenciasApi(payload).then(function (data) {
       var okRole = !opts.expectRole || (data && data.role === opts.expectRole);
       if (data && data.success && okRole) {
         if (typeof opts.onSuccess === 'function') opts.onSuccess(data);
